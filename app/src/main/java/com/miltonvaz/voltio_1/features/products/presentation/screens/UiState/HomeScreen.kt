@@ -19,21 +19,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.miltonvaz.voltio_1.features.products.presentation.components.*
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
-import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.viewModelFactory.ProductViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    factory: ProductViewModelFactory,
     onAddProduct: () -> Unit,
     onEditProduct: (Int) -> Unit,
-    onProductClick: (Int) -> Unit
+    onProductClick: (Int) -> Unit,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val viewModel: HomeViewModel = viewModel(factory = factory)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
 

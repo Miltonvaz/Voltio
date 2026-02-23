@@ -21,24 +21,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.ProductFormViewModel
-import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.viewModelFactory.ProductViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddProductScreen(
-    productId: Int = -1,
-    factory: ProductViewModelFactory,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: ProductFormViewModel = hiltViewModel()
 ) {
-    val viewModel: ProductFormViewModel = viewModel(factory = factory)
-
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val productId = viewModel.productId
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -186,7 +183,7 @@ fun AddProductScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = { viewModel.saveProduct(productId, onNavigateBack) },
+                    onClick = { viewModel.saveProduct(onNavigateBack) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),

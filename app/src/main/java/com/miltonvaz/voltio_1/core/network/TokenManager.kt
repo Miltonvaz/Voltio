@@ -1,11 +1,13 @@
-package com.miltonvaz.voltio_1.core.network
-
+package com.alilopez.kt_demohilt.core.network
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.core.content.edit
-
-
-class TokenManager(context: Context) {
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
+@Singleton
+class TokenManager@Inject constructor(
+    @ApplicationContext private val context: Context
+) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences("voltio_prefs", Context.MODE_PRIVATE)
 

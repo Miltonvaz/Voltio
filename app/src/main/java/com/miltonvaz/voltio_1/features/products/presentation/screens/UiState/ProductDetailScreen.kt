@@ -21,14 +21,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
+import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
 
 @Composable
 fun ProductDetailScreen(
     product: Product,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     Scaffold(
         containerColor = Color(0xFFDDE7FF)

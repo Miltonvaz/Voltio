@@ -1,6 +1,5 @@
 package com.miltonvaz.voltio_1.features.auth.di
 
-import com.miltonvaz.voltio_1.core.di.AppContainer
 import com.miltonvaz.voltio_1.features.auth.domain.usecase.AuthUseCase
 import com.miltonvaz.voltio_1.features.auth.presentation.viewmodel.AuthViewModelFactory
 

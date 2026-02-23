@@ -9,18 +9,14 @@ import com.miltonvaz.voltio_1.core.navigation.Login
 import com.miltonvaz.voltio_1.core.navigation.Register
 import com.miltonvaz.voltio_1.features.auth.presentation.screens.LoginScreen
 import com.miltonvaz.voltio_1.features.auth.presentation.screens.register.RegisterScreen
-import com.miltonvaz.voltio_1.features.auth.presentation.viewmodel.AuthViewModelFactory
 
-class LoginNavGraph(
-    private val authViewModelFactory: AuthViewModelFactory,
-) : FeatureNavGraph {
+class LoginNavGraph : FeatureNavGraph {
     override fun registerGraph(
         navGraphBuilder: NavGraphBuilder,
         navController: NavHostController
     ) {
         navGraphBuilder.composable<Login> {
             LoginScreen(
-                factory = authViewModelFactory,
                 onBackClick = {
                     navController.popBackStack()
                 },
@@ -37,7 +33,6 @@ class LoginNavGraph(
 
         navGraphBuilder.composable<Register> {
             RegisterScreen(
-                factory = authViewModelFactory,
                 onBackClick = {
                     navController.popBackStack()
                 },

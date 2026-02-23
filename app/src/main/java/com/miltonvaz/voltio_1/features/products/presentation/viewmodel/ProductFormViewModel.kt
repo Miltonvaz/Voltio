@@ -3,21 +3,26 @@ package com.miltonvaz.voltio_1.features.products.presentation.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.miltonvaz.voltio_1.core.network.TokenManager
+import com.alilopez.kt_demohilt.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.products.data.datasource.remote.model.CreateProductRequest
 import com.miltonvaz.voltio_1.features.products.domain.usecase.CreateProductUseCase
 import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductByIdUseCase
 import com.miltonvaz.voltio_1.features.products.domain.usecase.UpdateProductUseCase
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.ProductFormUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.toString
 
-class ProductFormViewModel(
-    private val productId: Int,
+@HiltViewModel
+class ProductFormViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val createProductUseCase: CreateProductUseCase,
     private val updateProductUseCase: UpdateProductUseCase,
     private val getProductByIdUseCase: GetProductByIdUseCase,
@@ -27,12 +32,15 @@ class ProductFormViewModel(
     private val _uiState = MutableStateFlow(ProductFormUiState())
     val uiState = _uiState.asStateFlow()
 
+    val productId: Int = savedStateHandle.get<Int>("id") ?: -1
+
     var nombre by mutableStateOf("")
     var precio by mutableStateOf("")
     var stock by mutableStateOf("")
     var sku by mutableStateOf("")
     var descripcion by mutableStateOf("")
     var categoriaId by mutableStateOf(1)
+
     var imageName by mutableStateOf("Subir imagen del producto")
     var selectedImageBytes by mutableStateOf<ByteArray?>(null)
 
@@ -61,7 +69,7 @@ class ProductFormViewModel(
         }
     }
 
-    fun saveProduct(id: Int, onNavigateBack: () -> Unit) {
+    fun saveProduct(onNavigateBack: () -> Unit) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val token = tokenManager.getToken() ?: ""
@@ -75,10 +83,10 @@ class ProductFormViewModel(
                 id_categoria = categoriaId
             )
 
-            val result = if (id == -1) {
+            val result = if (productId == -1) {
                 createProductUseCase(token, request, selectedImageBytes)
             } else {
-                updateProductUseCase(token, id, request, selectedImageBytes)
+                updateProductUseCase(token, productId, request, selectedImageBytes)
             }
 
             result.onSuccess {
