@@ -1,8 +1,9 @@
-package com.miltonvaz.voltio_1.features.products.presentation.navigation
+package com.miltonvaz.voltio_1.features.products.di.navigation
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -16,9 +17,10 @@ import com.miltonvaz.voltio_1.features.products.presentation.screens.AddProductS
 import com.miltonvaz.voltio_1.features.products.presentation.screens.HomeScreen
 import com.miltonvaz.voltio_1.features.products.presentation.screens.ProductDetailScreen
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
+import javax.inject.Inject
 
 
-class ProductNavGraph : FeatureNavGraph {
+class ProductNavGraph @Inject constructor() : FeatureNavGraph {
 
     override fun registerGraph(
         navGraphBuilder: NavGraphBuilder,
@@ -26,7 +28,7 @@ class ProductNavGraph : FeatureNavGraph {
     ) {
         navGraphBuilder.composable<Home> { backStackEntry ->
 
-            val viewModel: HomeViewModel = hiltViewModel()
+            val viewModel: HomeViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 
             val refreshNeeded by backStackEntry.savedStateHandle
                 .getMutableStateFlow("refresh", false)
@@ -52,8 +54,8 @@ class ProductNavGraph : FeatureNavGraph {
 
 
         navGraphBuilder.composable<ProductFormArg> { backStackEntry ->
-            val args = backStackEntry.toRoute<ProductFormArg>()
 
+            val args = backStackEntry.toRoute<ProductFormArg>()
 
             AddProductScreen(
                 onNavigateBack = {
@@ -66,8 +68,8 @@ class ProductNavGraph : FeatureNavGraph {
         navGraphBuilder.composable<ProductDetailArg> { backStackEntry ->
             val args = backStackEntry.toRoute<ProductDetailArg>()
 
-            val viewModel: HomeViewModel = hiltViewModel()
-            val uiState by viewModel.uiState.collectAsState()
+            val viewModel: HomeViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
             val product = uiState.products.find { it.id == args.id }
 
