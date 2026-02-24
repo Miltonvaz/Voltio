@@ -5,7 +5,7 @@ import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthReq
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRequest
 import com.miltonvaz.voltio_1.features.auth.domain.repositories.IAuthRepository
 
-class AuthUseCase(
+class  AuthUseCase @Inject constructor(
     private val repository: IAuthRepository
 ) {
     suspend operator fun invoke(loginRequest: LoginRequest): Result<AuthResponse> {

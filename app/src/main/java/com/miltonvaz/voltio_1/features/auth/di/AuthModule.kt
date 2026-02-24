@@ -1,21 +1,20 @@
 package com.miltonvaz.voltio_1.features.auth.di
 
-import com.miltonvaz.voltio_1.core.di.AppContainer
-import com.miltonvaz.voltio_1.features.auth.domain.usecase.AuthUseCase
-import com.miltonvaz.voltio_1.features.auth.presentation.viewmodel.AuthViewModelFactory
+import com.miltonvaz.voltio_1.features.auth.data.repositories.AuthRepositoryImpl
+import com.miltonvaz.voltio_1.features.auth.domain.repositories.IAuthRepository
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-class AuthModule(
-    private val appContainer: AppContainer
-) {
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class AuthModule {
 
-    private fun provideAuthUseCase(): AuthUseCase {
-        return AuthUseCase(appContainer.authRepository)
-    }
-
-    fun provideLoginViewModelFactory(): AuthViewModelFactory {
-        return AuthViewModelFactory(
-            authUseCase = provideAuthUseCase(),
-            sessionManager = appContainer.sessionManager
-        )
-    }
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(
+        impl: AuthRepositoryImpl
+    ): IAuthRepository
 }

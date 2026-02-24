@@ -4,17 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRequest
-
 import com.miltonvaz.voltio_1.features.auth.domain.usecase.AuthUseCase
 import com.miltonvaz.voltio_1.features.auth.presentation.screens.LoginUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val authUseCase: AuthUseCase,
-    private val sessionManager: TokenManager
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -30,7 +32,7 @@ class LoginViewModel(
             _uiState.update { currentState ->
                 result.fold(
                     onSuccess = { response ->
-                        sessionManager.saveToken(response.accessToken)
+                        tokenManager.saveToken(response.accessToken)  // ← fix: era sessionManager
                         currentState.copy(
                             isLoading = false,
                             user = response.user,

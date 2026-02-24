@@ -11,7 +11,9 @@ import com.miltonvaz.voltio_1.features.auth.di.AuthModule
 import com.miltonvaz.voltio_1.features.auth.presentation.navigation.LoginNavGraph
 import com.miltonvaz.voltio_1.features.products.di.ProductModule
 import com.miltonvaz.voltio_1.features.products.presentation.navigation.ProductNavGraph
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     lateinit var appContainer: AppContainer
 
