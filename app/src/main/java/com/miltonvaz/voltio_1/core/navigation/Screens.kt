@@ -27,6 +27,9 @@ object Inventory
 object UserHome
 
 @Serializable
+object Cart
+
+@Serializable
 data class ProductDetailArg(val id: Int)
 
 @Serializable

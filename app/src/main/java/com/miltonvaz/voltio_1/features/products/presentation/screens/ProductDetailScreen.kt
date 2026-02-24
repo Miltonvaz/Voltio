@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.ToggleOn
 import androidx.compose.material.icons.filled.PrecisionManufacturing
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
@@ -29,9 +31,29 @@ import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewM
 
 @Composable
 fun ProductDetailScreen(
-    product: Product,
+    productId: Int,
     onNavigateBack: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val product = uiState.products.find { it.id == productId }
+
+    if (product != null) {
+        ProductDetailContent(
+            product = product,
+            onNavigateBack = onNavigateBack
+        )
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    }
+}
+
+@Composable
+fun ProductDetailContent(
+    product: Product,
+    onNavigateBack: () -> Unit
 ) {
     Scaffold(
         containerColor = Color(0xFFDDE7FF)

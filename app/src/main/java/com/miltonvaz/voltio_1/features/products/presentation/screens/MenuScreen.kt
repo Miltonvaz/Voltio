@@ -1,4 +1,4 @@
-package com.miltonvaz.voltio_1.features.products.presentation.screens.UiState
+package com.miltonvaz.voltio_1.features.products.presentation.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -45,7 +45,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminProductCard
-import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
+import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.MenuUiState
+import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.MenuViewModel
 
 
 @Composable
@@ -54,7 +55,7 @@ fun MenuScreen(
     onNavigateToStock: () -> Unit,
     onNavigateToInventory: () -> Unit,
     onAddProduct: () -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: MenuViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
@@ -69,7 +70,7 @@ fun MenuScreen(
 
 @Composable
 fun MenuScreenContent(
-    uiState: HomeUiState,
+    uiState: MenuUiState,
     onNavigateToOrders: () -> Unit,
     onNavigateToStock: () -> Unit,
     onNavigateToInventory: () -> Unit,
@@ -77,7 +78,6 @@ fun MenuScreenContent(
 ) {
     Scaffold(
         containerColor = Color(0xFFF8FAFC),
-        // BARRA DE NAVEGACIÓN INFERIOR (EL MENÚ QUE PEDISTE)
         bottomBar = {
             NavigationBar(
                 containerColor = Color.White,
@@ -123,7 +123,6 @@ fun MenuScreenContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // CABECERA ESTILO VOLTIO
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -146,7 +145,6 @@ fun MenuScreenContent(
                 }
             }
 
-            // CONTENIDO PRINCIPAL (RESUMEN RÁPIDO)
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(20.dp),
@@ -156,7 +154,6 @@ fun MenuScreenContent(
                     Text("Acceso Directo", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 }
 
-                // TARJETAS DE ACCESO RÁPIDO
                 item {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         MenuCard("Pedidos", Icons.Default.ShoppingCart, Color(0xFF818CF8), Modifier.weight(1f), onNavigateToOrders)
@@ -168,11 +165,10 @@ fun MenuScreenContent(
                     Text("Actividad Reciente", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 }
 
-                // Aquí vendría la lista de productos o pedidos recientes
                 if (uiState.isLoading) {
                     item { LoadingState() }
                 } else {
-                    itemsIndexed(uiState.products.take(5)) { _, product ->
+                    itemsIndexed(uiState.products) { _, product ->
                         AdminProductCard(product = product, onEdit = {}, onDelete = {}, onClick = {})
                     }
                 }
@@ -213,7 +209,7 @@ private fun LoadingState() {
 fun MenuScreenPreview() {
     MaterialTheme {
         MenuScreenContent(
-            uiState = HomeUiState(isLoading = false, products = emptyList()),
+            uiState = MenuUiState(isLoading = false, products = emptyList()),
             onNavigateToOrders = {},
             onNavigateToStock = {},
             onNavigateToInventory = {},

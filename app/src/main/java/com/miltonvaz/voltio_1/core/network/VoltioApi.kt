@@ -1,7 +1,7 @@
 package com.miltonvaz.voltio_1.core.network
 
-import com.ameth.voltio.features.login.data.datasource.remote.model.AuthResponse
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthRequest
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthResponse
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRequest
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.MessageResponse
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.ProfileResponse
