@@ -3,7 +3,7 @@ package com.miltonvaz.voltio_1.features.products.presentation.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alilopez.kt_demohilt.core.network.TokenManager
+import com.miltonvaz.voltio_1.core.network.TokenManager
 
 import com.miltonvaz.voltio_1.features.products.domain.usecase.DeleteProductUseCase
 import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductsUseCase

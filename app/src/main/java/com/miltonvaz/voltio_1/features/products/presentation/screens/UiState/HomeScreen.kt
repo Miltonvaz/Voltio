@@ -17,12 +17,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.miltonvaz.voltio_1.features.products.presentation.components.*
+import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.HomeUiState
+import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.MenuScreenContent
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -155,5 +158,21 @@ private fun EmptyState() {
     ) {
         Icon(Icons.Default.Inventory2, null, modifier = Modifier.size(64.dp), tint = Color(0xFFCBD5E1))
         Text("Inventario vacío", fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+    }
+}
+
+
+@Preview(showBackground = true, device = "id:pixel_5")
+@Composable
+fun MenuScreenPreview() {
+    MaterialTheme {
+        // Pasamos lambdas vacías para los eventos de navegación
+        HomeScreen(
+            onAddProduct = {},
+            onEditProduct = { id -> },
+            onProductClick = { id -> }
+            // Nota: El viewModel se omitirá o fallará si Hilt no está configurado
+            // Lo ideal es envolver el hiltViewModel en un condicional o usar State Hoisting
+        )
     }
 }

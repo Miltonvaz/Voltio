@@ -1,11 +1,13 @@
-package com.alilopez.kt_demohilt.core.network
+package com.miltonvaz.voltio_1.core.network
+
 import android.content.Context
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+
 @Singleton
-class TokenManager@Inject constructor(
+class TokenManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val prefs: SharedPreferences =

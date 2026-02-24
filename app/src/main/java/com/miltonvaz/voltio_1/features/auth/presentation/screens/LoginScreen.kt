@@ -26,13 +26,14 @@ import com.miltonvaz.voltio_1.features.auth.presentation.components.LoginTopBar
 import com.miltonvaz.voltio_1.core.ui.theme.bodyFontFamily
 import com.miltonvaz.voltio_1.core.ui.theme.displayFontFamily
 import com.miltonvaz.voltio_1.R
+import com.miltonvaz.voltio_1.features.auth.domain.entities.Auth
 import com.miltonvaz.voltio_1.features.auth.presentation.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     onBackClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {},
-    onLoginSuccess: () -> Unit = {}
+    onLoginSuccess: (Auth?) -> Unit = {}
 ) {
     val viewModel: LoginViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -42,7 +43,7 @@ fun LoginScreen(
 
     LaunchedEffect(uiState.isAuthenticated) {
         if (uiState.isAuthenticated) {
-            onLoginSuccess()
+            onLoginSuccess(uiState.user)
         }
     }
 

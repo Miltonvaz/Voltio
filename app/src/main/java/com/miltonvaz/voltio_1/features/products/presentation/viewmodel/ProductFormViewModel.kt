@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alilopez.kt_demohilt.core.network.TokenManager
+import com.miltonvaz.voltio_1.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.products.data.datasource.remote.model.CreateProductRequest
 import com.miltonvaz.voltio_1.features.products.domain.usecase.CreateProductUseCase
 import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductByIdUseCase
