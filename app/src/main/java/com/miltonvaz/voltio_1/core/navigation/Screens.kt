@@ -30,6 +30,15 @@ object UserHome
 object Cart
 
 @Serializable
+object Checkout
+
+@Serializable
+object CheckoutAddress
+
+@Serializable
+data class CheckoutResult(val isSuccess: Boolean)
+
+@Serializable
 data class ProductDetailArg(val id: Int)
 
 @Serializable
