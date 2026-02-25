@@ -12,6 +12,9 @@ object Register
 object Home
 
 @Serializable
+object HomeClient
+
+@Serializable
 data class ProductDetailArg(val id: Int)
 
 @Serializable

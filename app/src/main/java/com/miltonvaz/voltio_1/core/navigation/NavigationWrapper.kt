@@ -7,7 +7,7 @@ import com.miltonvaz.voltio_1.features.auth.presentation.navigation.LoginNavGrap
 import com.miltonvaz.voltio_1.features.products.presentation.navigation.ProductNavGraph
 
 @Composable
-fun NavigationWrapper(startDestination: Any = Login) {
+fun NavigationWrapper(startDestination: Any = HomeClient) {
     val navController = rememberNavController()
     val navGraphs = listOf(LoginNavGraph(), ProductNavGraph())
 

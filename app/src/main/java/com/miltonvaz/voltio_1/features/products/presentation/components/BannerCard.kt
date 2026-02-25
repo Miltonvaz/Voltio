@@ -45,7 +45,7 @@ fun BannerCard() {
                     Text("Potente con Wi-Fi y Bluetooth integrados", color = Color.White, fontSize = 12.sp, lineHeight = 16.sp)
                 }
                 Image(
-                    painter = painterResource(id = R.drawable.voltio),
+                    painter = painterResource(id = R.drawable.esp32),
                     contentDescription = null,
                     modifier = Modifier.size(100.dp)
                 )
