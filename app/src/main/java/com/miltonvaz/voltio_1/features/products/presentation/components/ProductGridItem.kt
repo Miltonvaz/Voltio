@@ -3,11 +3,9 @@ package com.miltonvaz.voltio_1.features.products.presentation.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -47,20 +45,20 @@ fun ProductGridItem(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         onClick = onClick
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(modifier = Modifier.padding(6.dp)) {
 
-            // ── Imagen + botón favorito ────────────────────────────
+            // ── Imagen + favorito ──────────────────────────────────
             Box(modifier = Modifier.fillMaxWidth()) {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(110.dp),
-                    shape = RoundedCornerShape(12.dp),
+                        .height(70.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = Color(0xFFF1F5F9)
                 ) {
                     Image(
@@ -69,25 +67,25 @@ fun ProductGridItem(
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(10.dp)
+                            .padding(6.dp)
                     )
                 }
                 IconButton(
                     onClick = onFavoriteClick,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .size(28.dp)
+                        .size(20.dp)
                 ) {
                     Icon(
                         Icons.Default.FavoriteBorder,
                         contentDescription = "Favorito",
                         tint = Color.Gray,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(12.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // ── Estrellas ──────────────────────────────────────────
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -96,32 +94,32 @@ fun ProductGridItem(
                         Icons.Default.Star,
                         contentDescription = null,
                         tint = Color(0xFFFFC107),
-                        modifier = Modifier.size(11.dp)
+                        modifier = Modifier.size(8.dp)
                     )
                 }
                 Icon(
                     Icons.Default.Star,
                     contentDescription = null,
                     tint = Color(0xFFCBD5E1),
-                    modifier = Modifier.size(11.dp)
+                    modifier = Modifier.size(8.dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("4.8", fontSize = 10.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.width(2.dp))
+                Text("4.8", fontSize = 8.sp, color = Color.Gray)
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             // ── Nombre ─────────────────────────────────────────────
             Text(
                 product.name,
                 fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                maxLines = 2,
+                fontSize = 10.sp,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 color = Color(0xFF1A1C2E)
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // ── Precio + carrito ───────────────────────────────────
             Row(
@@ -132,21 +130,22 @@ fun ProductGridItem(
                 Text(
                     "$${product.price}",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    color = Color(0xFF1A1C2E)
+                    fontSize = 11.sp,
+                    color = Color(0xFF1A6BFF)
                 )
-                IconButton(
-                    onClick = onCartClick,
+                Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .background(Color(0xFF1A1C2E), CircleShape)
+                        .size(26.dp)
+                        .background(Color(0xFFCCDAFF), RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Default.ShoppingCart,
-                        contentDescription = "Carrito",
-                        tint = Color.White,
-                        modifier = Modifier.size(14.dp)
-                    )
+                    IconButton(onClick = onCartClick) {
+                        Image(
+                            painter = painterResource(id = R.drawable.carrito),
+                            contentDescription = "Carrito",
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
                 }
             }
         }
