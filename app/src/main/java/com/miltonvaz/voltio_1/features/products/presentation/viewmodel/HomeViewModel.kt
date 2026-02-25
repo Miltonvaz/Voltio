@@ -6,12 +6,15 @@ import com.miltonvaz.voltio_1.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.products.domain.usecase.DeleteProductUseCase
 import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductsUseCase
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.HomeUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val getProductsUseCase: GetProductsUseCase,
     private val deleteProductUseCase: DeleteProductUseCase,
     private val tokenManager: TokenManager
@@ -29,7 +32,6 @@ class HomeViewModel(
         viewModelScope.launch {
             val token = tokenManager.getToken() ?: ""
             val result = getProductsUseCase(token)
-
             _uiState.update { currentState ->
                 result.fold(
                     onSuccess = { products ->
@@ -47,7 +49,6 @@ class HomeViewModel(
         viewModelScope.launch {
             val token = tokenManager.getToken() ?: ""
             val result = deleteProductUseCase(token, id)
-
             result.onSuccess {
                 loadProducts()
             }.onFailure { error ->

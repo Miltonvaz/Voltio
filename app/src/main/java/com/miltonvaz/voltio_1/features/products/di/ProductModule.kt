@@ -1,36 +1,42 @@
 package com.miltonvaz.voltio_1.features.products.di
 
-import com.miltonvaz.voltio_1.core.di.AppContainer
 import com.miltonvaz.voltio_1.features.products.data.datasource.remote.ProductApiService
 import com.miltonvaz.voltio_1.features.products.data.repositories.ProductRepositoryImpl
+import com.miltonvaz.voltio_1.features.products.domain.repositories.IProductRepository
 import com.miltonvaz.voltio_1.features.products.domain.usecase.*
-import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.viewModelFactory.ProductViewModelFactory
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-class ProductModule(private val appContainer: AppContainer) {
+@Module
+@InstallIn(SingletonComponent::class)
+object ProductModule {
 
-    private val productApiService: ProductApiService by lazy {
-        appContainer.retrofit.create(ProductApiService::class.java)
+    @Provides
+    @Singleton
+    fun provideProductRepository(api: ProductApiService): IProductRepository {
+        return ProductRepositoryImpl(api)
     }
 
-    private val productRepository by lazy {
-        ProductRepositoryImpl(productApiService)
-    }
+    @Provides
+    @Singleton
+    fun provideGetProductsUseCase(repo: IProductRepository) = GetProductsUseCase(repo)
 
-    private val getProductsUseCase by lazy { GetProductsUseCase(productRepository) }
-    private val deleteProductUseCase by lazy { DeleteProductUseCase(productRepository) }
-    private val getProductByIdUseCase by lazy { GetProductByIdUseCase(productRepository) }
-    private val createProductUseCase by lazy { CreateProductUseCase(productRepository) }
-    private val updateProductUseCase by lazy { UpdateProductUseCase(productRepository) }
+    @Provides
+    @Singleton
+    fun provideGetProductByIdUseCase(repo: IProductRepository) = GetProductByIdUseCase(repo)
 
-    fun provideProductViewModelFactory(productId: Int = -1): ProductViewModelFactory {
-        return ProductViewModelFactory(
-            productId = productId,
-            getProductsUseCase = getProductsUseCase,
-            getProductByIdUseCase = getProductByIdUseCase,
-            createProductUseCase = createProductUseCase,
-            updateProductUseCase = updateProductUseCase,
-            deleteProductUseCase = deleteProductUseCase,
-            tokenManager = appContainer.sessionManager
-        )
-    }
+    @Provides
+    @Singleton
+    fun provideCreateProductUseCase(repo: IProductRepository) = CreateProductUseCase(repo)
+
+    @Provides
+    @Singleton
+    fun provideUpdateProductUseCase(repo: IProductRepository) = UpdateProductUseCase(repo)
+
+    @Provides
+    @Singleton
+    fun provideDeleteProductUseCase(repo: IProductRepository) = DeleteProductUseCase(repo)
 }

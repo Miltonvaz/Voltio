@@ -3,6 +3,7 @@ package com.miltonvaz.voltio_1.features.products.presentation.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.network.TokenManager
@@ -11,18 +12,23 @@ import com.miltonvaz.voltio_1.features.products.domain.usecase.CreateProductUseC
 import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductByIdUseCase
 import com.miltonvaz.voltio_1.features.products.domain.usecase.UpdateProductUseCase
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.ProductFormUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ProductFormViewModel(
-    private val productId: Int,
+@HiltViewModel
+class ProductFormViewModel @Inject constructor(
     private val createProductUseCase: CreateProductUseCase,
     private val updateProductUseCase: UpdateProductUseCase,
     private val getProductByIdUseCase: GetProductByIdUseCase,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val productId: Int = savedStateHandle["id"] ?: -1
 
     private val _uiState = MutableStateFlow(ProductFormUiState())
     val uiState = _uiState.asStateFlow()
@@ -37,9 +43,7 @@ class ProductFormViewModel(
     var selectedImageBytes by mutableStateOf<ByteArray?>(null)
 
     init {
-        if (productId != -1) {
-            loadProductForEdit(productId)
-        }
+        if (productId != -1) loadProductForEdit(productId)
     }
 
     private fun loadProductForEdit(id: Int) {
@@ -74,13 +78,11 @@ class ProductFormViewModel(
                 imagen_url = _uiState.value.currentProduct?.imageUrl,
                 id_categoria = categoriaId
             )
-
             val result = if (id == -1) {
                 createProductUseCase(token, request, selectedImageBytes)
             } else {
                 updateProductUseCase(token, id, request, selectedImageBytes)
             }
-
             result.onSuccess {
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                 onNavigateBack()
