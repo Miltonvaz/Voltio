@@ -7,6 +7,8 @@ data class Order(
     val status: String,
     val totalAmount: Double,
     val description: String?,
+    val address: String?,
+    val paymentType: String?,
     val products: List<OrderItem>
 )
 

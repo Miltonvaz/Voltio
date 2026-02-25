@@ -39,6 +39,9 @@ object CheckoutAddress
 data class CheckoutResult(val isSuccess: Boolean)
 
 @Serializable
+data class OrderDetailArg(val orderId: Int)
+
+@Serializable
 data class ProductDetailArg(val id: Int)
 
 @Serializable

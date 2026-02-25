@@ -15,6 +15,15 @@ class OrdersNavGraph @Inject constructor() : FeatureNavGraph {
     ) {
         navGraphBuilder.composable<Orders> {
             OrdersScreen(
+                onBackClick = { navController.popBackStack() },
+                onOrderClick = { orderId ->
+                    navController.navigate(OrderDetailArg(orderId = orderId))
+                }
+            )
+        }
+
+        navGraphBuilder.composable<OrderDetailArg> {
+            OrderDetailScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }

@@ -7,9 +7,9 @@ import javax.inject.Inject
 class UpdateOrderStatusUseCase @Inject constructor(
     private val repository: IOrderRepository
 ) {
-    suspend operator fun invoke(id: Int, order: Order): Result<Order> {
+    suspend operator fun invoke(token: String, id: Int, order: Order): Result<Order> {
         return try {
-            Result.success(repository.updateOrder(id, order))
+            Result.success(repository.updateOrder(token, id, order))
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -2,6 +2,7 @@ package com.miltonvaz.voltio_1.features.orders.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.miltonvaz.voltio_1.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.GetOrdersUseCase
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.OrdersUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OrdersViewModel @Inject constructor(
-    private val getOrdersUseCase: GetOrdersUseCase
+    private val getOrdersUseCase: GetOrdersUseCase,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OrdersUiState())
@@ -26,7 +28,8 @@ class OrdersViewModel @Inject constructor(
     fun loadOrders() {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
-            val result = getOrdersUseCase()
+            val token = tokenManager.getToken() ?: ""
+            val result = getOrdersUseCase(token)
             _uiState.update { currentState ->
                 result.fold(
                     onSuccess = { orders ->

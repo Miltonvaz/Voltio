@@ -5,20 +5,44 @@ import retrofit2.http.*
 
 interface OrderApiService {
     @GET("ordenes")
-    suspend fun getAllOrders(): List<OrderDto>
+    suspend fun getAllOrders(
+        @Header("Authorization") token: String,
+        @Header("Cookie") cookie: String
+    ): List<OrderDto>
 
     @GET("ordenes/{id}")
-    suspend fun getOrderById(@Path("id") id: Int): OrderDto
+    suspend fun getOrderById(
+        @Header("Authorization") token: String,
+        @Header("Cookie") cookie: String,
+        @Path("id") id: Int
+    ): OrderDto
 
     @GET("usuarios/{id_usuario}/ordenes")
-    suspend fun getOrdersByUserId(@Path("id_usuario") userId: Int): List<OrderDto>
+    suspend fun getOrdersByUserId(
+        @Header("Authorization") token: String,
+        @Header("Cookie") cookie: String,
+        @Path("id_usuario") userId: Int
+    ): List<OrderDto>
 
     @POST("ordenes")
-    suspend fun createOrder(@Body order: OrderDto): OrderDto
+    suspend fun createOrder(
+        @Header("Authorization") token: String,
+        @Header("Cookie") cookie: String,
+        @Body order: OrderDto
+    ): OrderDto
 
     @PUT("ordenes/{id}")
-    suspend fun updateOrder(@Path("id") id: Int, @Body order: OrderDto): OrderDto
+    suspend fun updateOrder(
+        @Header("Authorization") token: String,
+        @Header("Cookie") cookie: String,
+        @Path("id") id: Int,
+        @Body order: OrderDto
+    ): OrderDto
 
     @DELETE("ordenes/{id}")
-    suspend fun deleteOrder(@Path("id") id: Int)
+    suspend fun deleteOrder(
+        @Header("Authorization") token: String,
+        @Header("Cookie") cookie: String,
+        @Path("id") id: Int
+    )
 }

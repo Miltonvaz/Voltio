@@ -6,9 +6,10 @@ import javax.inject.Inject
 class DeleteOrderUseCase @Inject constructor(
     private val repository: IOrderRepository
 ) {
-    suspend operator fun invoke(id: Int): Result<Unit> {
+    suspend operator fun invoke(token: String, id: Int): Result<Unit> {
         return try {
-            Result.success(repository.deleteOrder(id))
+            repository.deleteOrder(token, id)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -6,7 +6,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.miltonvaz.voltio_1.core.navigation.*
 import com.miltonvaz.voltio_1.features.products.presentation.screens.*
-import com.miltonvaz.voltio_1.features.products.presentation.screens.MenuScreen
 import javax.inject.Inject
 
 class ProductNavGraph @Inject constructor() : FeatureNavGraph {
@@ -19,8 +18,7 @@ class ProductNavGraph @Inject constructor() : FeatureNavGraph {
             MenuScreen(
                 onNavigateToOrders = { navController.navigate(Orders) },
                 onNavigateToStock = { navController.navigate(Stock) },
-                onNavigateToInventory = { navController.navigate(Inventory) },
-                onAddProduct = { navController.navigate(ProductFormArg(id = -1)) }
+                onNavigateToInventory = { navController.navigate(Inventory) }
             )
         }
 
@@ -33,10 +31,10 @@ class ProductNavGraph @Inject constructor() : FeatureNavGraph {
         }
 
         navGraphBuilder.composable<Stock> {
-            HomeScreen(
+            StockScreen(
+                onBackClick = { navController.popBackStack() },
                 onAddProduct = { navController.navigate(ProductFormArg(id = -1)) },
-                onEditProduct = { id -> navController.navigate(ProductFormArg(id = id)) },
-                onProductClick = { id -> navController.navigate(ProductDetailArg(id = id)) }
+                onEditProduct = { id -> navController.navigate(ProductFormArg(id = id)) }
             )
         }
 
@@ -56,7 +54,5 @@ class ProductNavGraph @Inject constructor() : FeatureNavGraph {
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-
-        navGraphBuilder.composable<Orders> { }
     }
 }

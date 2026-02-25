@@ -53,12 +53,16 @@ class CheckoutViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true, error = null) }
         
         viewModelScope.launch {
+            val token = tokenManager.getToken() ?: ""
             val cartItems = cartManager.items.value
             if (cartItems.isEmpty()) {
                 _uiState.update { it.copy(isLoading = false, error = "El carrito está vacío") }
                 return@launch
             }
 
+            val addressInfo = _uiState.value.addressInfo
+            val fullAddress = "${addressInfo.street}, ${addressInfo.city}, ${addressInfo.state} CP: ${addressInfo.zipCode}"
+            
             val totalAmount = cartItems.sumOf { it.product.price * it.quantity }
             val orderDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
             
@@ -68,7 +72,9 @@ class CheckoutViewModel @Inject constructor(
                 orderDate = orderDate,
                 status = "Pendiente",
                 totalAmount = totalAmount,
-                description = "Pedido a la calle ${_uiState.value.addressInfo.street}",
+                description = "Pedido urgente",
+                address = fullAddress,
+                paymentType = "tarjeta",
                 products = cartItems.map { 
                     OrderItem(
                         productId = it.product.id,
@@ -79,7 +85,7 @@ class CheckoutViewModel @Inject constructor(
                 }
             )
 
-            val result = createOrderUseCase(order)
+            val result = createOrderUseCase(token, order)
             
             _uiState.update { currentState ->
                 result.fold(

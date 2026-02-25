@@ -31,19 +31,22 @@ import java.util.Locale
 @Composable
 fun OrdersScreen(
     onBackClick: () -> Unit = {},
+    onOrderClick: (Int) -> Unit = {},
     viewModel: OrdersViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     OrdersScreenContent(
         uiState = uiState,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        onOrderClick = onOrderClick
     )
 }
 
 @Composable
 fun OrdersScreenContent(
     uiState: OrdersUiState,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onOrderClick: (Int) -> Unit
 ) {
     Scaffold(
         containerColor = Color(0xFFF8FAFC)
@@ -53,7 +56,6 @@ fun OrdersScreenContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Header con el estilo Voltio Lab
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,7 +102,10 @@ fun OrdersScreenContent(
                         }
 
                         items(uiState.orders) { order ->
-                            OrderItemCard(order)
+                            OrderItemCard(
+                                order = order,
+                                onClick = { onOrderClick(order.id) }
+                            )
                         }
                     }
                 }
@@ -130,16 +135,18 @@ private fun EmptyOrdersState() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderItemCard(order: Order) {
+fun OrderItemCard(order: Order, onClick: () -> Unit) {
     val statusColor = when (order.status.lowercase()) {
-        "completado" -> Color(0xFF34D399)
+        "completado", "entregado" -> Color(0xFF34D399)
         "pendiente" -> Color(0xFFFBBF24)
         "cancelado" -> Color(0xFFF87171)
         else -> Color.Gray
     }
 
     Card(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -173,10 +180,10 @@ fun OrderItemCard(order: Order) {
                                 .background(statusColor)
                         )
                         Text(
-                            text = order.status,
+                            text = order.status.uppercase(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
-                            color = statusColor
+                            color = getStatusColor(order.status)
                         )
                     }
                 }
@@ -189,7 +196,8 @@ fun OrderItemCard(order: Order) {
             ) {
                 Column {
                     Text("Fecha", fontSize = 11.sp, color = Color.Gray)
-                    Text(order.orderDate, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    val displayDate = order.orderDate.split("T").firstOrNull() ?: order.orderDate
+                    Text(displayDate, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text("Monto Total", fontSize = 11.sp, color = Color.Gray)
@@ -205,16 +213,26 @@ fun OrderItemCard(order: Order) {
     }
 }
 
+private fun getStatusColor(status: String): Color {
+    return when (status.lowercase()) {
+        "completado", "entregado" -> Color(0xFF10B981)
+        "pendiente" -> Color(0xFFD97706)
+        "cancelado" -> Color(0xFFEF4444)
+        else -> Color.Gray
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun OrdersScreenPreview() {
     val dummyOrders = listOf(
-        Order(1, 1, "2023-10-27 10:30", "Completado", 150.50, null, emptyList()),
-        Order(2, 1, "2023-10-26 15:45", "Pendiente", 75.0, null, emptyList()),
-        Order(3, 1, "2023-10-25 09:12", "Cancelado", 200.0, null, emptyList())
+        Order(1, 1, "2023-10-27 10:30", "Completado", 150.50, null, null, null, emptyList()),
+        Order(2, 1, "2023-10-26 15:45", "Pendiente", 75.0, null, null, null, emptyList()),
+        Order(3, 1, "2023-10-25 09:12", "Cancelado", 200.0, null, null, null, emptyList())
     )
     OrdersScreenContent(
         uiState = OrdersUiState(orders = dummyOrders, isLoading = false),
-        onBackClick = {}
+        onBackClick = {},
+        onOrderClick = {}
     )
 }

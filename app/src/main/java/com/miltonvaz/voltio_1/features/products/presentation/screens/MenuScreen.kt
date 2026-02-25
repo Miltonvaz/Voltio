@@ -1,35 +1,16 @@
 package com.miltonvaz.voltio_1.features.products.presentation.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Inventory2
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -44,27 +25,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminProductCard
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.MenuUiState
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.MenuViewModel
-
+import java.util.Locale
 
 @Composable
 fun MenuScreen(
     onNavigateToOrders: () -> Unit,
     onNavigateToStock: () -> Unit,
     onNavigateToInventory: () -> Unit,
-    onAddProduct: () -> Unit,
     viewModel: MenuViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     MenuScreenContent(
         uiState = uiState,
         onNavigateToOrders = onNavigateToOrders,
         onNavigateToStock = onNavigateToStock,
-        onNavigateToInventory = onNavigateToInventory,
-        onAddProduct = onAddProduct
+        onNavigateToInventory = onNavigateToInventory
     )
 }
 
@@ -73,102 +53,114 @@ fun MenuScreenContent(
     uiState: MenuUiState,
     onNavigateToOrders: () -> Unit,
     onNavigateToStock: () -> Unit,
-    onNavigateToInventory: () -> Unit,
-    onAddProduct: () -> Unit
+    onNavigateToInventory: () -> Unit
 ) {
     Scaffold(
         containerColor = Color(0xFFF8FAFC),
         bottomBar = {
-            NavigationBar(
-                containerColor = Color.White,
+            Surface(
                 tonalElevation = 8.dp,
-                modifier = Modifier.clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                shadowElevation = 12.dp,
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                color = Color.White
             ) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Inventory2, contentDescription = null) },
-                    label = { Text("Almacén") },
-                    selected = true,
-                    onClick = onNavigateToInventory,
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFF4F46E5),
-                        indicatorColor = Color(0xFFE0E7FF)
+                NavigationBar(
+                    containerColor = Color.Transparent,
+                    modifier = Modifier.height(80.dp)
+                ) {
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Inventory2, null) },
+                        label = { Text("Almacén") },
+                        selected = true,
+                        onClick = onNavigateToInventory,
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Color(0xFF4F46E5),
+                            indicatorColor = Color(0xFFE0E7FF),
+                            unselectedIconColor = Color(0xFF94A3B8)
+                        )
                     )
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.AutoMirrored.Filled.ListAlt, contentDescription = null) },
-                    label = { Text("Pedidos") },
-                    selected = false,
-                    onClick = onNavigateToOrders
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
-                    label = { Text("Stock") },
-                    selected = false,
-                    onClick = onNavigateToStock
-                )
-            }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddProduct,
-                containerColor = Color(0xFF4F46E5),
-                contentColor = Color.White
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
+                    NavigationBarItem(
+                        icon = { Icon(Icons.AutoMirrored.Filled.ListAlt, null) },
+                        label = { Text("Pedidos") },
+                        selected = false,
+                        onClick = onNavigateToOrders,
+                        colors = NavigationBarItemDefaults.colors(unselectedIconColor = Color(0xFF94A3B8))
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.BarChart, null) },
+                        label = { Text("Stock") },
+                        selected = false,
+                        onClick = onNavigateToStock,
+                        colors = NavigationBarItemDefaults.colors(unselectedIconColor = Color(0xFF94A3B8))
+                    )
+                }
             }
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(bottom = 20.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
-                    .background(Brush.verticalGradient(listOf(Color(0xFFE0E7FF), Color(0xFFC7D2FE))))
-                    .padding(24.dp)
-            ) {
-                Column {
-                    Text(
-                        text = "Voltio Lab",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF1E1B4B)
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
+                        .background(Brush.verticalGradient(listOf(Color(0xFFE0E7FF), Color(0xFFC7D2FE))))
+                        .padding(top = 16.dp, bottom = 60.dp)
+                ) {
+                    AdminHeader(title = "Voltio Lab", subtitle = "Resumen de operaciones")
+                }
+            }
+
+            item {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .offset(y = (-30).dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+
+                    val ordersValue = uiState.totalOrdersToday.toString()
+                    
+                    StatCard(
+                        label = "Pedidos Hoy",
+                        value = ordersValue,
+                        icon = Icons.AutoMirrored.Filled.ListAlt,
+                        color = Color(0xFF818CF8),
+                        modifier = Modifier.weight(1f)
                     )
-                    Text(
-                        text = "Panel de Control",
-                        fontSize = 14.sp,
-                        color = Color(0xFF4338CA)
+
+                    val stockValueFormatted = String.format(Locale.US, "$%.2f", uiState.totalStockValue)
+                    
+                    StatCard(
+                        label = "Valor Stock",
+                        value = stockValueFormatted,
+                        icon = Icons.Default.TrendingUp,
+                        color = Color(0xFF10B981),
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                item {
-                    Text("Acceso Directo", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                }
+            item {
+                Text(
+                    "Productos con poco stock",
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1E293B)
+                    )
+                )
+            }
 
-                item {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        MenuCard("Pedidos", Icons.Default.ShoppingCart, Color(0xFF818CF8), Modifier.weight(1f), onNavigateToOrders)
-                        MenuCard("Stock Low", Icons.Default.BarChart, Color(0xFFF87171), Modifier.weight(1f), onNavigateToStock)
-                    }
-                }
-
-                item {
-                    Text("Actividad Reciente", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                }
-
-                if (uiState.isLoading) {
-                    item { LoadingState() }
-                } else {
-                    itemsIndexed(uiState.products) { _, product ->
+            if (uiState.isLoading) {
+                item { LoadingState() }
+            } else {
+                itemsIndexed(uiState.products) { _, product ->
+                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)) {
                         AdminProductCard(product = product, onEdit = {}, onDelete = {}, onClick = {})
                     }
                 }
@@ -178,42 +170,55 @@ fun MenuScreenContent(
 }
 
 @Composable
-fun MenuCard(title: String, icon: ImageVector, color: Color, modifier: Modifier, onClick: () -> Unit) {
+fun StatCard(label: String, value: String, icon: ImageVector, color: Color, modifier: Modifier) {
     Surface(
-        onClick = onClick,
-        modifier = modifier.height(100.dp),
-        shape = RoundedCornerShape(20.dp),
-        color = color.copy(alpha = 0.1f),
-        border = BorderStroke(1.dp, color.copy(alpha = 0.2f))
+        modifier = modifier,
+        shape = RoundedCornerShape(24.dp),
+        color = Color.White,
+        shadowElevation = 6.dp
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Icon(icon, contentDescription = null, tint = color)
-            Text(title, fontWeight = FontWeight.Bold, color = color)
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = value,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF1E1B4B)
+            )
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                color = Color(0xFF64748B),
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
 
 @Composable
 private fun LoadingState() {
-    Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator(color = Color(0xFF4338CA))
+    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(color = Color(0xFF4F46E5))
     }
 }
 
-@Preview(showBackground = true, device = "id:pixel_5")
+@Preview(showBackground = true)
 @Composable
 fun MenuScreenPreview() {
     MaterialTheme {
         MenuScreenContent(
-            uiState = MenuUiState(isLoading = false, products = emptyList()),
+            uiState = MenuUiState(isLoading = false, products = emptyList(), totalOrdersToday = 0, totalStockValue = 1250.50),
             onNavigateToOrders = {},
             onNavigateToStock = {},
-            onNavigateToInventory = {},
-            onAddProduct = {}
+            onNavigateToInventory = {}
         )
     }
 }

@@ -7,9 +7,9 @@ import javax.inject.Inject
 class GetOrderByIdUseCase @Inject constructor(
     private val repository: IOrderRepository
 ) {
-    suspend operator fun invoke(id: Int): Result<Order> {
+    suspend operator fun invoke(token: String, id: Int): Result<Order> {
         return try {
-            Result.success(repository.getOrderById(id))
+            Result.success(repository.getOrderById(token, id))
         } catch (e: Exception) {
             Result.failure(e)
         }

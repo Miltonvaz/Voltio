@@ -11,9 +11,11 @@ fun OrderDto.toDomain(): Order {
         userId = userId,
         orderDate = orderDate,
         status = status,
-        totalAmount = totalAmount,
+        totalAmount = totalAmount.toDoubleOrNull() ?: 0.0,
         description = description,
-        products = products.map { it.toDomain() }
+        address = address,
+        paymentType = paymentMethod?.type,
+        products = products?.map { it.toDomain() } ?: emptyList()
     )
 }
 
@@ -22,7 +24,7 @@ fun OrderItemDto.toDomain(): OrderItem {
         productId = productId,
         productName = productName,
         quantity = quantity,
-        unitPrice = unitPrice
+        unitPrice = unitPrice.toDoubleOrNull() ?: 0.0
     )
 }
 
@@ -32,8 +34,10 @@ fun Order.toDto(): OrderDto {
         userId = userId,
         orderDate = orderDate,
         status = status,
-        totalAmount = totalAmount,
+        totalAmount = totalAmount.toString(),
         description = description,
+        address = address,
+        paymentMethod = null, // No necesario enviar de vuelta por ahora
         products = products.map { it.toDto() }
     )
 }
@@ -43,6 +47,6 @@ fun OrderItem.toDto(): OrderItemDto {
         productId = productId,
         productName = productName,
         quantity = quantity,
-        unitPrice = unitPrice
+        unitPrice = unitPrice.toString()
     )
 }
