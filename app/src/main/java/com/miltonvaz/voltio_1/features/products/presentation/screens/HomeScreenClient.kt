@@ -3,10 +3,12 @@ package com.miltonvaz.voltio_1.features.products.presentation.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,25 +36,41 @@ fun HomeScreenClient(
         modifier = Modifier.fillMaxSize().background(Color(0xFFF8FAFF)),
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        item { TopBarClient(onFavoriteClick = onFavoriteClick, onCartClick = onCartClick) }
-
+        // ── Sección azul superior ──────────────────────────────────
         item {
-            Spacer(modifier = Modifier.height(4.dp))
-            SearchBarClient(query = searchQuery, onQueryChange = { searchQuery = it })
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+                    .background(Color(0xFFDDE8FF))
+                    .padding(bottom = 16.dp)
+            ) {
+                Column {
+                    TopBarClient(
+                        onFavoriteClick = onFavoriteClick,
+                        onCartClick = onCartClick
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    SearchBarClient(query = searchQuery, onQueryChange = { searchQuery = it })
+                    Spacer(modifier = Modifier.height(4.dp))
+                    LocationRow(location = "Suchiapa, Chiapas")
+                }
+            }
         }
 
-        item { LocationRow(location = "Suchiapa, Chiapas") }
-
+        // ── Categorías ─────────────────────────────────────────────
         item {
             Spacer(modifier = Modifier.height(8.dp))
             CategoryRow(onCategoryClick = {})
         }
 
+        // ── Banner ─────────────────────────────────────────────────
         item {
             Spacer(modifier = Modifier.height(8.dp))
             BannerCard()
         }
 
+        // ── Sugerencias ────────────────────────────────────────────
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -65,6 +83,7 @@ fun HomeScreenClient(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
+        // ── Grid productos ─────────────────────────────────────────
         item {
             if (uiState.isLoading) {
                 Box(
@@ -108,12 +127,23 @@ private fun HomeScreenClientPreview() {
             modifier = Modifier.fillMaxSize().background(Color(0xFFF8FAFF)),
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
-            item { TopBarClient(onFavoriteClick = {}, onCartClick = {}) }
             item {
-                Spacer(modifier = Modifier.height(4.dp))
-                SearchBarClient(query = "", onQueryChange = {})
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+                        .background(Color(0xFFDDE8FF))
+                        .padding(bottom = 16.dp)
+                ) {
+                    Column {
+                        TopBarClient(onFavoriteClick = {}, onCartClick = {})
+                        Spacer(modifier = Modifier.height(4.dp))
+                        SearchBarClient(query = "", onQueryChange = {})
+                        Spacer(modifier = Modifier.height(4.dp))
+                        LocationRow(location = "Suchiapa, Chiapas")
+                    }
+                }
             }
-            item { LocationRow(location = "Suchiapa, Chiapas") }
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 CategoryRow(onCategoryClick = {})
