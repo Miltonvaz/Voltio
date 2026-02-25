@@ -1,6 +1,6 @@
 package com.miltonvaz.voltio_1.features.auth.domain.repositories
 
-import com.ameth.voltio.features.login.data.datasource.remote.model.AuthResponse
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthResponse
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthRequest
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRequest
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.MessageResponse
