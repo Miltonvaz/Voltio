@@ -3,6 +3,8 @@ package com.miltonvaz.voltio_1.features.products.presentation.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -70,7 +72,7 @@ fun HomeScreenClient(
             BannerCard()
         }
 
-        // ── Sugerencias ────────────────────────────────────────────
+        // ── Sugerencias título ─────────────────────────────────────
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -83,7 +85,7 @@ fun HomeScreenClient(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        // ── Grid productos ─────────────────────────────────────────
+        // ── Grid productos horizontal ──────────────────────────────
         item {
             if (uiState.isLoading) {
                 Box(
@@ -93,24 +95,18 @@ fun HomeScreenClient(
                     CircularProgressIndicator(color = Color(0xFF1E293B))
                 }
             } else {
-                val chunked = filteredProducts.chunked(2)
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    chunked.forEach { rowItems ->
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            rowItems.forEach { product ->
-                                Box(modifier = Modifier.weight(1f)) {
-                                    ProductGridItem(
-                                        product = product,
-                                        onFavoriteClick = {},
-                                        onCartClick = {},
-                                        onClick = { onProductClick(product.id) }
-                                    )
-                                }
-                            }
-                            if (rowItems.size == 1) Box(modifier = Modifier.weight(1f))
+                    items(filteredProducts) { product ->
+                        Box(modifier = Modifier.width(160.dp)) {
+                            ProductGridItem(
+                                product = product,
+                                onFavoriteClick = {},
+                                onCartClick = {},
+                                onClick = { onProductClick(product.id) }
+                            )
                         }
                     }
                 }
