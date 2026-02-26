@@ -13,3 +13,7 @@ annotation class JsonPlaceHolderRetrofit
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class VoltioRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class VoltioWebSocketUrl

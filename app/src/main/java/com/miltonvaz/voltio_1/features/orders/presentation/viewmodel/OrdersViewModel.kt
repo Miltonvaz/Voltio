@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.GetOrdersUseCase
+import com.miltonvaz.voltio_1.features.orders.domain.usecase.ObserveNewOrdersUseCase
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.OrdersUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OrdersViewModel @Inject constructor(
     private val getOrdersUseCase: GetOrdersUseCase,
+    private val observeNewOrdersUseCase: ObserveNewOrdersUseCase,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
@@ -23,6 +25,7 @@ class OrdersViewModel @Inject constructor(
 
     init {
         loadOrders()
+        observeLiveOrders()
     }
 
     fun loadOrders() {
@@ -39,6 +42,25 @@ class OrdersViewModel @Inject constructor(
                         currentState.copy(isLoading = false, error = error.message)
                     }
                 )
+            }
+        }
+    }
+
+    private fun observeLiveOrders() {
+        viewModelScope.launch {
+            observeNewOrdersUseCase().collect { newOrder ->
+                _uiState.update { currentState ->
+                    val currentList = currentState.orders.toMutableList()
+                    val index = currentList.indexOfFirst { it.id == newOrder.id }
+                    
+                    if (index != -1) {
+                        currentList[index] = newOrder
+                    } else {
+                        currentList.add(0, newOrder)
+                    }
+                    
+                    currentState.copy(orders = currentList)
+                }
             }
         }
     }

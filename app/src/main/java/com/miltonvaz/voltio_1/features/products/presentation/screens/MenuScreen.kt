@@ -4,12 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,14 +21,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
-import com.miltonvaz.voltio_1.features.products.presentation.components.AdminProductCard
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.MenuUiState
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.MenuViewModel
 import java.util.Locale
@@ -122,22 +126,17 @@ fun MenuScreenContent(
                         .offset(y = (-30).dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-
-                    val ordersValue = uiState.totalOrdersToday.toString()
-                    
                     StatCard(
                         label = "Pedidos Hoy",
-                        value = ordersValue,
+                        value = uiState.totalOrdersToday.toString(),
                         icon = Icons.AutoMirrored.Filled.ListAlt,
                         color = Color(0xFF818CF8),
                         modifier = Modifier.weight(1f)
                     )
-
-                    val stockValueFormatted = String.format(Locale.US, "$%.2f", uiState.totalStockValue)
                     
                     StatCard(
                         label = "Valor Stock",
-                        value = stockValueFormatted,
+                        value = String.format(Locale.US, "$%.2f", uiState.totalStockValue),
                         icon = Icons.Default.TrendingUp,
                         color = Color(0xFF10B981),
                         modifier = Modifier.weight(1f)
@@ -147,7 +146,7 @@ fun MenuScreenContent(
 
             item {
                 Text(
-                    "Productos con poco stock",
+                    "Productos con poco stock (5 o menos)",
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
@@ -158,12 +157,58 @@ fun MenuScreenContent(
 
             if (uiState.isLoading) {
                 item { LoadingState() }
+            } else if (uiState.products.isEmpty()) {
+                item {
+                    Text(
+                        "No hay productos con stock crítico.",
+                        modifier = Modifier.padding(24.dp),
+                        color = Color.Gray
+                    )
+                }
             } else {
                 itemsIndexed(uiState.products) { _, product ->
-                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)) {
-                        AdminProductCard(product = product, onEdit = {}, onDelete = {}, onClick = {})
-                    }
+                    SimpleStockCard(product)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun SimpleStockCard(product: Product) {
+    Card(
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp).fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = product.imageUrl,
+                contentDescription = null,
+                modifier = Modifier.size(50.dp).clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(product.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF1E1B4B))
+                Text("SKU: ${product.sku}", fontSize = 11.sp, color = Color.Gray)
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Warning, null, tint = Color(0xFFEF4444), modifier = Modifier.size(14.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "${product.stock}",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp,
+                    color = Color(0xFFEF4444)
+                )
             }
         }
     }
@@ -181,24 +226,9 @@ fun StatCard(label: String, value: String, icon: ImageVector, color: Color, modi
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(20.dp)
-            )
-            Text(
-                text = value,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF1E1B4B)
-            )
-            Text(
-                text = label,
-                fontSize = 12.sp,
-                color = Color(0xFF64748B),
-                fontWeight = FontWeight.Medium
-            )
+            Icon(imageVector = icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
+            Text(text = value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1E1B4B))
+            Text(text = label, fontSize = 12.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium)
         }
     }
 }

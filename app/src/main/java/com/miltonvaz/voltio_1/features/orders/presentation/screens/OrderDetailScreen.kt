@@ -245,28 +245,61 @@ fun OrderItemRow(item: OrderItem) {
 @Composable
 fun StatusUpdateDialog(currentStatus: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
     val statuses = listOf("pendiente", "entregado", "cancelado")
+    
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Actualizar Estado", fontWeight = FontWeight.Bold) },
+        title = { 
+            Text(
+                "Actualizar Estado", 
+                fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF1E1B4B)
+            ) 
+        },
         text = {
-            Column {
+            Column(modifier = Modifier.padding(top = 8.dp)) {
                 statuses.forEach { status ->
-                    Row(
+                    val isSelected = status.lowercase() == currentStatus.lowercase()
+                    
+                    Surface(
+                        onClick = { onConfirm(status) },
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (isSelected) Color(0xFFE0E7FF) else Color.Transparent,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (status == currentStatus) Color(0xFFE0E7FF) else Color.Transparent)
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(vertical = 4.dp)
                     ) {
-                        RadioButton(selected = (status == currentStatus), onClick = { onConfirm(status) })
-                        Text(status.uppercase(), modifier = Modifier.padding(start = 8.dp))
+                        Row(
+                            modifier = Modifier
+                                .padding(12.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = { onConfirm(status) },
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = Color(0xFF4F46E5)
+                                )
+                            )
+                            Text(
+                                text = status.uppercase(),
+                                modifier = Modifier.padding(start = 12.dp),
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSelected) Color(0xFF4F46E5) else Color(0xFF64748B)
+                            )
+                        }
                     }
                 }
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("CANCELAR", color = Color.Gray, fontWeight = FontWeight.Bold)
+            }
+        },
+        shape = RoundedCornerShape(28.dp),
+        containerColor = Color.White
     )
 }
 
