@@ -39,7 +39,8 @@ fun ProductDetailScreenClient(
                 onItemSelected = { selectedNavIndex = it }
             )
         },
-        containerColor = Color(0xFFFFFFFF)
+        containerColor = Color(0xFFFFFFFF),
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -95,7 +96,7 @@ fun ProductDetailScreenClient(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFF5F7FF))
+                        .background(Color(0xFFD1D5DB))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     IconButton(onClick = { if (quantity > 1) quantity-- }, modifier = Modifier.size(32.dp)) {
@@ -109,13 +110,13 @@ fun ProductDetailScreenClient(
 
                 Button(
                     onClick = {},
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1C2E)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCCDAFF)),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier.height(48.dp)
                 ) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color(0xFF1A1C2E), modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Añadir al carrito", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Añadir al carrito", color = Color(0xFF1A1C2E), fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -131,7 +132,7 @@ fun DetailCategoryItemClient(label: String, iconRes: Int, isSelected: Boolean) {
             modifier = Modifier
                 .size(52.dp)
                 .clip(RoundedCornerShape(14.dp))
-                .background(if (isSelected) Color(0xFFDDE8FF) else Color(0xFFF5F7FF)),
+                .background(if (isSelected) Color(0xFFCCDAFF) else Color(0xFFFFFFFF)),
             contentAlignment = Alignment.Center
         ) {
             Image(

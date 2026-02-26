@@ -5,13 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +33,9 @@ fun DetailHeaderClient(
                 Color(0xFFCCDAFF),
                 shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
             )
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .statusBarsPadding()
+            .padding(horizontal = 24.dp)
+            .padding(top = 16.dp, bottom = 24.dp)
     ) {
         Column {
             Row(
@@ -45,7 +45,11 @@ fun DetailHeaderClient(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Regresar", tint = Color(0xFF1A1C2E))
+                        Image(
+                            painter = painterResource(id = R.drawable.flecha),
+                            contentDescription = "Regresar",
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                     Image(
                         painter = painterResource(id = R.drawable.voltio),
@@ -67,7 +71,7 @@ fun DetailHeaderClient(
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -78,22 +82,12 @@ fun DetailHeaderClient(
                     Text(productName, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = Color(0xFF1A1C2E))
                     Text(productCategory, fontSize = 13.sp, color = Color.Gray)
                 }
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = categoryIconRes),
-                        contentDescription = null,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+                Image(
+                    painter = painterResource(id = categoryIconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp)
+                )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
