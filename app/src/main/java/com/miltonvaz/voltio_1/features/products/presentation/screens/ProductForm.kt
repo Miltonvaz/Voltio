@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,7 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.ProductFormViewModel
@@ -29,12 +30,12 @@ import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.ProductFo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddProductScreen(
-    productId: Int = -1,
-    viewModel: ProductFormViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: ProductFormViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val productId = viewModel.productId
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -77,10 +78,15 @@ fun AddProductScreen(
                     )
                     .padding(bottom = 16.dp)
             ) {
-                AdminHeader(
-                    title = if (productId == -1) "Nuevo Producto" else "Editar Detalles",
-                    subtitle = "Voltio Inventory"
-                )
+                Column {
+                    IconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color(0xFF1E1B4B))
+                    }
+                    AdminHeader(
+                        title = if (productId == -1) "Nuevo Producto" else "Editar Detalles",
+                        subtitle = "Voltio Inventory"
+                    )
+                }
             }
 
             Column(
@@ -182,7 +188,7 @@ fun AddProductScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = { viewModel.saveProduct(productId, onNavigateBack) },
+                    onClick = { viewModel.saveProduct(onNavigateBack) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),

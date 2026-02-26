@@ -1,5 +1,8 @@
 package com.miltonvaz.voltio_1.features.auth.data.repositories
 
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.api.AuthApiService
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthRequest
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthResponse
 import com.miltonvaz.voltio_1.core.network.VoltioApi
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthRequest
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthResponse

@@ -6,17 +6,32 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.compose.AppTheme
 import com.miltonvaz.voltio_1.core.navigation.NavigationWrapper
+import com.miltonvaz.voltio_1.features.auth.di.navigation.AuthNavGraph
+import com.miltonvaz.voltio_1.features.orders.di.navigation.OrdersNavGraph
+import com.miltonvaz.voltio_1.features.products.di.navigation.ProductNavGraph
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var productNavGraph: ProductNavGraph
+
+    @Inject
+    lateinit var authNavGraph: AuthNavGraph
+
+    @Inject
+    lateinit var ordersNavGraph: OrdersNavGraph
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             AppTheme {
-                NavigationWrapper()
+                NavigationWrapper(
+                    navGraphs = listOf(authNavGraph, productNavGraph, ordersNavGraph)
+                )
             }
         }
     }

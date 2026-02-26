@@ -13,25 +13,26 @@ import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductByIdUse
 import com.miltonvaz.voltio_1.features.products.domain.usecase.UpdateProductUseCase
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.ProductFormUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import kotlin.toString
 
 @HiltViewModel
 class ProductFormViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val createProductUseCase: CreateProductUseCase,
     private val updateProductUseCase: UpdateProductUseCase,
     private val getProductByIdUseCase: GetProductByIdUseCase,
-    private val tokenManager: TokenManager,
-    savedStateHandle: SavedStateHandle
+    private val tokenManager: TokenManager
 ) : ViewModel() {
-
-    private val productId: Int = savedStateHandle["id"] ?: -1
 
     private val _uiState = MutableStateFlow(ProductFormUiState())
     val uiState = _uiState.asStateFlow()
+
+    val productId: Int = savedStateHandle.get<Int>("id") ?: -1
 
     var nombre by mutableStateOf("")
     var precio by mutableStateOf("")
@@ -39,11 +40,14 @@ class ProductFormViewModel @Inject constructor(
     var sku by mutableStateOf("")
     var descripcion by mutableStateOf("")
     var categoriaId by mutableStateOf(1)
+
     var imageName by mutableStateOf("Subir imagen del producto")
     var selectedImageBytes by mutableStateOf<ByteArray?>(null)
 
     init {
-        if (productId != -1) loadProductForEdit(productId)
+        if (productId != -1) {
+            loadProductForEdit(productId)
+        }
     }
 
     private fun loadProductForEdit(id: Int) {
@@ -65,7 +69,7 @@ class ProductFormViewModel @Inject constructor(
         }
     }
 
-    fun saveProduct(id: Int, onNavigateBack: () -> Unit) {
+    fun saveProduct(onNavigateBack: () -> Unit) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val token = tokenManager.getToken() ?: ""
@@ -78,11 +82,13 @@ class ProductFormViewModel @Inject constructor(
                 imagen_url = _uiState.value.currentProduct?.imageUrl,
                 id_categoria = categoriaId
             )
-            val result = if (id == -1) {
+
+            val result = if (productId == -1) {
                 createProductUseCase(token, request, selectedImageBytes)
             } else {
-                updateProductUseCase(token, id, request, selectedImageBytes)
+                updateProductUseCase(token, productId, request, selectedImageBytes)
             }
+
             result.onSuccess {
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                 onNavigateBack()

@@ -7,16 +7,16 @@ import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRe
 import com.miltonvaz.voltio_1.features.auth.domain.usecase.AuthUseCase
 import com.miltonvaz.voltio_1.features.auth.presentation.screens.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authUseCase: AuthUseCase,
-    private val tokenManager: TokenManager
+    private val sessionManager: TokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -32,7 +32,7 @@ class LoginViewModel @Inject constructor(
             _uiState.update { currentState ->
                 result.fold(
                     onSuccess = { response ->
-                        tokenManager.saveToken(response.accessToken)  // ← fix: era sessionManager
+                        sessionManager.saveToken(response.accessToken)
                         currentState.copy(
                             isLoading = false,
                             user = response.user,

@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miltonvaz.voltio_1.core.ui.components.CustomTextField
 import com.miltonvaz.voltio_1.core.ui.components.PrimaryButton
@@ -26,13 +26,14 @@ import com.miltonvaz.voltio_1.features.auth.presentation.components.LoginTopBar
 import com.miltonvaz.voltio_1.core.ui.theme.bodyFontFamily
 import com.miltonvaz.voltio_1.core.ui.theme.displayFontFamily
 import com.miltonvaz.voltio_1.R
+import com.miltonvaz.voltio_1.features.auth.domain.entities.Auth
 import com.miltonvaz.voltio_1.features.auth.presentation.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     onBackClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {},
-    onLoginSuccess: () -> Unit = {}
+    onLoginSuccess: (Auth?) -> Unit = {}
 ) {
     val viewModel: LoginViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -42,7 +43,7 @@ fun LoginScreen(
 
     LaunchedEffect(uiState.isAuthenticated) {
         if (uiState.isAuthenticated) {
-            onLoginSuccess()
+            onLoginSuccess(uiState.user)
         }
     }
 

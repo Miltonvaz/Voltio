@@ -1,16 +1,11 @@
 package com.miltonvaz.voltio_1.core.di
 
-import android.content.Context
-import com.miltonvaz.voltio_1.core.network.TokenManager
-import com.miltonvaz.voltio_1.core.network.VoltioApi
-import com.miltonvaz.voltio_1.features.products.data.datasource.remote.ProductApiService
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext  // ← CAMBIADO
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -21,40 +16,29 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideTokenManager(@ApplicationContext context: Context): TokenManager {
-        return TokenManager(context)
-    }
-
-    @Provides
-    @Singleton
     fun provideOkHttpClient(): OkHttpClient {
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
-        return OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .build()
+        return OkHttpClient.Builder().build()
     }
 
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient): Retrofit {
+    fun provideGson(): Gson = Gson()
+
+    @Provides
+    @VoltioWebSocketUrl
+    fun provideWebSocketUrl(): String {
+        // Usamos la URL base de tu servidor. Socket.IO se encarga del resto.
+        return "https://voltio-ws.ameth.shop"
+    }
+
+    @Provides
+    @Singleton
+    @VoltioRetrofit
+    fun provideVoltioRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl("https://voltio.ameth.shop/api/")
-            .client(client)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideVoltioApi(retrofit: Retrofit): VoltioApi {
-        return retrofit.create(VoltioApi::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideProductApiService(retrofit: Retrofit): ProductApiService {
-        return retrofit.create(ProductApiService::class.java)
     }
 }

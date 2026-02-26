@@ -6,11 +6,11 @@ import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthReq
 import com.miltonvaz.voltio_1.features.auth.domain.usecase.AuthUseCase
 import com.miltonvaz.voltio_1.features.auth.presentation.screens.register.RegisterUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
