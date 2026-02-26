@@ -41,8 +41,7 @@ fun BottomNavBarClient(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
             .background(Color(0xFFDDE8FF))
             .padding(vertical = 8.dp)
     ) {

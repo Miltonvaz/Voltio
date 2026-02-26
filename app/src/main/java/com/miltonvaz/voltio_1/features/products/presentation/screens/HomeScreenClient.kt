@@ -49,7 +49,7 @@ fun HomeScreenClient(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF8FAFF)),
-            contentPadding = PaddingValues(bottom = 200.dp)
+            contentPadding = PaddingValues(bottom = 320.dp)
         ) {
             item {
                 Box(
@@ -141,7 +141,6 @@ fun HomeScreenClient(
             }
         }
 
-        // ── BottomNavBar fijo abajo ────────────────────────────────
         Box(modifier = Modifier.align(Alignment.BottomCenter)) {
             BottomNavBarClient(
                 selectedIndex = selectedNavIndex,
