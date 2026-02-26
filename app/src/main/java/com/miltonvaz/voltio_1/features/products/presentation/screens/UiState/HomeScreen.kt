@@ -20,20 +20,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.miltonvaz.voltio_1.features.products.presentation.components.*
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
-import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.viewModelFactory.ProductViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    factory: ProductViewModelFactory,
+    viewModel: HomeViewModel,
     onAddProduct: () -> Unit,
     onEditProduct: (Int) -> Unit,
     onProductClick: (Int) -> Unit
 ) {
-    val viewModel: HomeViewModel = viewModel(factory = factory)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
 
@@ -108,7 +105,8 @@ fun HomeScreen(
                     EmptyState()
                 } else {
                     val filteredProducts = uiState.products.filter {
-                        it.name.contains(searchQuery, ignoreCase = true) || it.sku.contains(searchQuery, ignoreCase = true)
+                        it.name.contains(searchQuery, ignoreCase = true) ||
+                                it.sku.contains(searchQuery, ignoreCase = true)
                     }
 
                     LazyColumn(
@@ -126,7 +124,7 @@ fun HomeScreen(
                             )
                         }
 
-                        itemsIndexed(filteredProducts) { index, product ->
+                        itemsIndexed(filteredProducts) { _, product ->
                             AdminProductCard(
                                 product = product,
                                 onEdit = { onEditProduct(product.id) },
@@ -140,6 +138,7 @@ fun HomeScreen(
         }
     }
 }
+
 @Composable
 private fun LoadingState() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

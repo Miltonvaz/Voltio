@@ -2,15 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.jetbrainsKotlinSerialization)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.android)
+
 }
 
 android {
     namespace = "com.miltonvaz.voltio_1"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.miltonvaz.voltio_1"
@@ -37,6 +37,11 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+        resValues = true
+    }
+    kotlinOptions {
+        jvmTarget = "11"
     }
 }
 
@@ -62,7 +67,7 @@ dependencies {
     implementation(libs.com.squareup.retrofit2.converter.gson)
     implementation(libs.okhttp.logging)
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
     testImplementation(libs.junit)
@@ -72,6 +77,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-
 }
