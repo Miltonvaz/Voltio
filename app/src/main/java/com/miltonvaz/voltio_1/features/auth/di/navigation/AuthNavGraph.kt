@@ -1,4 +1,4 @@
-package com.miltonvaz.voltio_1.features.auth.di.navigation
+package com.miltonvaz.voltio_1.features.auth.presentation.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -12,28 +12,18 @@ import com.miltonvaz.voltio_1.features.auth.presentation.screens.LoginScreen
 import com.miltonvaz.voltio_1.features.auth.presentation.screens.register.RegisterScreen
 import javax.inject.Inject
 
-class AuthNavGraph @Inject constructor() : FeatureNavGraph {
+class LoginNavGraph : FeatureNavGraph {
     override fun registerGraph(
         navGraphBuilder: NavGraphBuilder,
         navController: NavHostController
     ) {
         navGraphBuilder.composable<Login> {
             LoginScreen(
-                onBackClick = {
-                    navController.popBackStack()
-                },
-                onRegisterClick = {
-                    navController.navigate(Register)
-                },
-                onLoginSuccess = { user ->
-                    if (user?.role == "admin") {
-                        navController.navigate(AdminMenu) {
-                            popUpTo(Login) { inclusive = true }
-                        }
-                    } else {
-                        navController.navigate(UserHome) {
-                            popUpTo(Login) { inclusive = true }
-                        }
+                onBackClick = { navController.popBackStack() },
+                onRegisterClick = { navController.navigate(Register) },
+                onLoginSuccess = {
+                    navController.navigate(Home) {
+                        popUpTo(Login) { inclusive = true }
                     }
                 }
             )
@@ -41,9 +31,7 @@ class AuthNavGraph @Inject constructor() : FeatureNavGraph {
 
         navGraphBuilder.composable<Register> {
             RegisterScreen(
-                onBackClick = {
-                    navController.popBackStack()
-                },
+                onBackClick = { navController.popBackStack() },
                 onRegisterSuccess = {
                     navController.navigate(Login) {
                         popUpTo(Register) { inclusive = true }

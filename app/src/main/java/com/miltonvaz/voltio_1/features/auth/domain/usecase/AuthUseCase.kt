@@ -1,10 +1,11 @@
 package com.miltonvaz.voltio_1.features.auth.domain.usecase
 
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthResponse
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthRequest
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthResponse
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRequest
 import com.miltonvaz.voltio_1.features.auth.domain.repositories.IAuthRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class AuthUseCase @Inject constructor(
     private val repository: IAuthRepository
