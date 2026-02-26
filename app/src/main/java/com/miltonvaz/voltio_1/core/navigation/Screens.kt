@@ -18,4 +18,7 @@ object HomeClient
 data class ProductDetailArg(val id: Int)
 
 @Serializable
+data class ProductDetailClientArg(val id: Int)
+
+@Serializable
 data class ProductFormArg(val id: Int = -1)
