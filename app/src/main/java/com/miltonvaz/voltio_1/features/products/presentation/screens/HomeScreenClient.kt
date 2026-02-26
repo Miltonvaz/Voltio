@@ -13,11 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miltonvaz.voltio_1.features.products.presentation.components.BannerCard
+import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarClient
 import com.miltonvaz.voltio_1.features.products.presentation.components.CategoryRow
 import com.miltonvaz.voltio_1.features.products.presentation.components.LocationRow
 import com.miltonvaz.voltio_1.features.products.presentation.components.ProductGridItem
@@ -34,6 +34,7 @@ fun HomeScreenClient(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
+    var selectedNavIndex by remember { mutableStateOf(0) }
 
     val filteredProducts = uiState.products.filter {
         it.name.contains(searchQuery, ignoreCase = true)
@@ -42,112 +43,13 @@ fun HomeScreenClient(
     val row1 = filteredProducts.filterIndexed { index, _ -> index % 2 == 0 }
     val row2 = filteredProducts.filterIndexed { index, _ -> index % 2 == 1 }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF8FAFF)),
-        contentPadding = PaddingValues(bottom = 24.dp)
-    ) {
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-                    .background(Color(0xFFDDE8FF))
-                    .padding(bottom = 16.dp)
-            ) {
-                Column {
-                    TopBarClient(
-                        onFavoriteClick = onFavoriteClick,
-                        onCartClick = onCartClick
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    SearchBarClient(query = searchQuery, onQueryChange = { searchQuery = it })
-                    Spacer(modifier = Modifier.height(4.dp))
-                    LocationRow(location = "Suchiapa, Chiapas")
-                }
-            }
-        }
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF8FAFF))) {
 
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            CategoryRow(onCategoryClick = {})
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            BannerCard()
-        }
-
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Sugerencias para ti",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        item {
-            if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Color(0xFF1E293B))
-                }
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        items(row1) { product ->
-                            Box(modifier = Modifier.width(88.dp)) {
-                                ProductGridItem(
-                                    product = product,
-                                    onFavoriteClick = {},
-                                    onCartClick = {},
-                                    onClick = { onProductClick(product.id) }
-                                )
-                            }
-                        }
-                    }
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        items(row2) { product ->
-                            Box(modifier = Modifier.width(88.dp)) {
-                                ProductGridItem(
-                                    product = product,
-                                    onFavoriteClick = {},
-                                    onCartClick = {},
-                                    onClick = { onProductClick(product.id) }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Preview(name = "HomeScreenClient", showBackground = true, showSystemUi = true)
-@Composable
-private fun HomeScreenClientPreview() {
-    MaterialTheme {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF8FAFF)),
-            contentPadding = PaddingValues(bottom = 24.dp)
+            contentPadding = PaddingValues(bottom = 200.dp)
         ) {
             item {
                 Box(
@@ -158,22 +60,28 @@ private fun HomeScreenClientPreview() {
                         .padding(bottom = 16.dp)
                 ) {
                     Column {
-                        TopBarClient(onFavoriteClick = {}, onCartClick = {})
+                        TopBarClient(
+                            onFavoriteClick = onFavoriteClick,
+                            onCartClick = onCartClick
+                        )
                         Spacer(modifier = Modifier.height(4.dp))
-                        SearchBarClient(query = "", onQueryChange = {})
+                        SearchBarClient(query = searchQuery, onQueryChange = { searchQuery = it })
                         Spacer(modifier = Modifier.height(4.dp))
                         LocationRow(location = "Suchiapa, Chiapas")
                     }
                 }
             }
+
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 CategoryRow(onCategoryClick = {})
             }
+
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 BannerCard()
             }
+
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -183,7 +91,62 @@ private fun HomeScreenClientPreview() {
                     color = Color(0xFF1E293B),
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
             }
+
+            item {
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color(0xFF1E293B))
+                    }
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            items(row1) { product ->
+                                Box(modifier = Modifier.width(88.dp)) {
+                                    ProductGridItem(
+                                        product = product,
+                                        onFavoriteClick = {},
+                                        onCartClick = {},
+                                        onClick = { onProductClick(product.id) }
+                                    )
+                                }
+                            }
+                        }
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            items(row2) { product ->
+                                Box(modifier = Modifier.width(88.dp)) {
+                                    ProductGridItem(
+                                        product = product,
+                                        onFavoriteClick = {},
+                                        onCartClick = {},
+                                        onClick = { onProductClick(product.id) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ── BottomNavBar fijo abajo ────────────────────────────────
+        Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+            BottomNavBarClient(
+                selectedIndex = selectedNavIndex,
+                onItemSelected = { selectedNavIndex = it }
+            )
         }
     }
 }
