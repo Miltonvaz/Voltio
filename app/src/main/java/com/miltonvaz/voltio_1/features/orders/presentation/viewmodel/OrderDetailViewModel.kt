@@ -41,7 +41,7 @@ class OrderDetailViewModel @Inject constructor(
         viewModelScope.launch {
             observeNewOrdersUseCase().collect { updatedOrder ->
                 if (updatedOrder.id == orderId) {
-                    _uiState.update { it.copy(order = updatedOrder) }
+                    loadOrderDetail(orderId)
                 }
             }
         }
@@ -75,15 +75,15 @@ class OrderDetailViewModel @Inject constructor(
             val updatedOrder = currentOrder.copy(status = newStatus)
             val result = updateOrderStatusUseCase(token, currentOrder.id, updatedOrder, currentOrder.last4 ?: "")
             
-            _uiState.update { currentState ->
-                result.fold(
-                    onSuccess = {
-                        currentState.copy(isUpdating = false, order = updatedOrder, error = null)
-                    },
-                    onFailure = { error ->
-                        currentState.copy(isUpdating = false, error = error.message)
-                    }
-                )
+            result.onSuccess {
+                _uiState.update { currentState ->
+                    currentState.copy(isUpdating = false, order = updatedOrder, error = null)
+                }
+                loadOrderDetail(orderId)
+            }.onFailure { error ->
+                _uiState.update { currentState ->
+                    currentState.copy(isUpdating = false, error = error.message)
+                }
             }
         }
     }

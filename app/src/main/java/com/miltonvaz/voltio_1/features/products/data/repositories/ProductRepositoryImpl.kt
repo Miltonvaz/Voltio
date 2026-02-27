@@ -98,6 +98,23 @@ class ProductRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateStock(token: String, id: Int, newStock: Int) {
-        api.updateStock(formatAuth(token), formatCookie(token), id, newStock)
+        val product = getProductById(token, id)
+        
+        val skuPart = product.sku.toRequestBody("text/plain".toMediaTypeOrNull())
+        val nombrePart = product.name.toRequestBody("text/plain".toMediaTypeOrNull())
+        val precioPart = product.price.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val stockPart = newStock.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val catPart = product.categoryId?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        api.updateStockPut(
+            token = formatAuth(token),
+            cookie = formatCookie(token),
+            id = id,
+            sku = skuPart,
+            nombre = nombrePart,
+            precio_venta = precioPart,
+            stock_actual = stockPart,
+            id_categoria = catPart
+        )
     }
 }

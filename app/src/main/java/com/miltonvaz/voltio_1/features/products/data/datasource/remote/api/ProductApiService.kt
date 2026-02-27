@@ -57,12 +57,16 @@ interface ProductApiService {
         @Path("id") id: Int
     ): Response<Unit>
 
-    @FormUrlEncoded
-    @PATCH("products/{id}")
-    suspend fun updateStock(
+    @Multipart
+    @PUT("products/{id}")
+    suspend fun updateStockPut(
         @Header("Authorization") token: String,
         @Header("Cookie") cookie: String,
         @Path("id") id: Int,
-        @Field("stock_actual") stock: Int
+        @Part("sku") sku: RequestBody,
+        @Part("nombre") nombre: RequestBody,
+        @Part("precio_venta") precio_venta: RequestBody,
+        @Part("stock_actual") stock_actual: RequestBody,
+        @Part("id_categoria") id_categoria: RequestBody?
     ): ProductDto
 }
