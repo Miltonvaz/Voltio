@@ -77,8 +77,8 @@ class OrderDetailViewModel @Inject constructor(
             _uiState.update { currentState ->
                 result.fold(
                     onSuccess = {
-                        // Como el UseCase ahora devuelve Result<Unit>, no intentamos asignar el resultado a 'order'
-                        // Confiamos en el WebSocket para la actualización reactiva o actualizamos con el objeto local 'updatedOrder'
+                        // El UseCase ahora devuelve Result<Unit>.
+                        // La actualización visual se hace localmente y se confirma vía WebSocket.
                         currentState.copy(isUpdating = false, order = updatedOrder, error = null)
                     },
                     onFailure = { error ->

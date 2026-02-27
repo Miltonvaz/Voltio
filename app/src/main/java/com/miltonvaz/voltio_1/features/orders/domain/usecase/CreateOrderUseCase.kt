@@ -7,9 +7,9 @@ import javax.inject.Inject
 class CreateOrderUseCase @Inject constructor(
     private val repository: IOrderRepository
 ) {
-    suspend operator fun invoke(token: String, order: Order): Result<Order> {
+    suspend operator fun invoke(token: String, order: Order, last4: String): Result<Order> {
         return try {
-            Result.success(repository.createOrder(token, order))
+            Result.success(repository.createOrder(token, order, last4))
         } catch (e: Exception) {
             Result.failure(e)
         }

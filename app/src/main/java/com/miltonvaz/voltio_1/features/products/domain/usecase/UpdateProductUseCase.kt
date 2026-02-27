@@ -3,7 +3,7 @@ package com.miltonvaz.voltio_1.features.products.domain.usecase
 import com.miltonvaz.voltio_1.features.products.data.datasource.remote.model.CreateProductRequest
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.domain.repositories.IProductRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class UpdateProductUseCase @Inject constructor(private val repository: IProductRepository) {
     suspend operator fun invoke(

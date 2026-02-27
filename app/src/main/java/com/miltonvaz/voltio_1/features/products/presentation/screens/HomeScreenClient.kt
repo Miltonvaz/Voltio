@@ -3,149 +3,137 @@ package com.miltonvaz.voltio_1.features.products.presentation.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.components.BannerCard
 import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarClient
 import com.miltonvaz.voltio_1.features.products.presentation.components.CategoryRow
-import com.miltonvaz.voltio_1.features.products.presentation.components.LocationRow
-import com.miltonvaz.voltio_1.features.products.presentation.components.ProductGridItem
+import com.miltonvaz.voltio_1.features.products.presentation.components.ProductCard
 import com.miltonvaz.voltio_1.features.products.presentation.components.SearchBarClient
-import com.miltonvaz.voltio_1.features.products.presentation.components.TopBarClient
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreenClient(
+    navController: NavHostController,
     viewModel: HomeViewModel,
-    onFavoriteClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onProductClick: (Int) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
-    var selectedNavIndex by remember { mutableStateOf(0) }
 
     val filteredProducts = uiState.products.filter {
         it.name.contains(searchQuery, ignoreCase = true)
     }
 
-    val row1 = filteredProducts.filterIndexed { index, _ -> index % 2 == 0 }
-    val row2 = filteredProducts.filterIndexed { index, _ -> index % 2 == 1 }
-
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF8FAFF))) {
-
+    Scaffold(
+        bottomBar = {
+            BottomNavBarClient(
+                navController = navController,
+                selectedIndex = 0
+            )
+        },
+        containerColor = Color(0xFFF8FAFC)
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF8FAFF)),
-            contentPadding = PaddingValues(bottom = 320.dp)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(bottom = 100.dp)
         ) {
+            // Header unificado del sistema
             item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-                        .background(Color(0xFFDDE8FF))
-                        .padding(bottom = 16.dp)
-                ) {
-                    Column {
-                        TopBarClient(
-                            onFavoriteClick = onFavoriteClick,
-                            onCartClick = onCartClick
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        SearchBarClient(query = searchQuery, onQueryChange = { searchQuery = it })
-                        Spacer(modifier = Modifier.height(4.dp))
-                        LocationRow(location = "Suchiapa, Chiapas")
-                    }
+                AdminHeader(
+                    title = "Voltio Store",
+                    subtitle = "Hola, Explorador",
+                    onBackClick = null,
+                    showProfile = true,
+                    showCart = true,
+                    onCartClick = onCartClick
+                )
+            }
+
+            // Buscador con margen de 24dp para alineación perfecta
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(modifier = Modifier.padding(horizontal = 24.dp)) {
+                    SearchBarClient(
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it }
+                    )
                 }
             }
 
+            // Fila de Categorías
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 CategoryRow(onCategoryClick = {})
             }
 
+            // Banner promocional centrado
             item {
-                Spacer(modifier = Modifier.height(8.dp))
-                BannerCard()
+                Spacer(modifier = Modifier.height(24.dp))
+                Box(modifier = Modifier.padding(horizontal = 24.dp)) {
+                    BannerCard()
+                }
             }
 
+            // Título de sugerencias
             item {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(28.dp))
                 Text(
                     text = "Sugerencias para ti",
-                    fontSize = 18.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1E293B),
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier.padding(horizontal = 24.dp)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            item {
-                if (uiState.isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = Color(0xFF1E293B))
+            // Cuadrícula de productos
+            if (uiState.isLoading) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color(0xFF4F46E5))
                     }
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        LazyRow(
-                            contentPadding = PaddingValues(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            items(row1) { product ->
-                                Box(modifier = Modifier.width(88.dp)) {
-                                    ProductGridItem(
-                                        product = product,
-                                        onFavoriteClick = {},
-                                        onCartClick = {},
-                                        onClick = { onProductClick(product.id) }
-                                    )
+                }
+            } else {
+                item {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        filteredProducts.chunked(2).forEach { rowProducts ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                rowProducts.forEach { product ->
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        ProductCard(
+                                            product = product,
+                                            onClick = { onProductClick(product.id) }
+                                        )
+                                    }
                                 }
-                            }
-                        }
-                        LazyRow(
-                            contentPadding = PaddingValues(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            items(row2) { product ->
-                                Box(modifier = Modifier.width(88.dp)) {
-                                    ProductGridItem(
-                                        product = product,
-                                        onFavoriteClick = {},
-                                        onCartClick = {},
-                                        onClick = { onProductClick(product.id) }
-                                    )
+                                if (rowProducts.size == 1) {
+                                    Spacer(modifier = Modifier.weight(1f))
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-
-        Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-            BottomNavBarClient(
-                selectedIndex = selectedNavIndex,
-                onItemSelected = { selectedNavIndex = it }
-            )
         }
     }
 }

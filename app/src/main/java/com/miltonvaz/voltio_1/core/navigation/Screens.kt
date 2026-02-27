@@ -15,7 +15,10 @@ object AdminMenu
 object Home
 
 @Serializable
-object Orders
+object Orders // Esta será para el Admin
+
+@Serializable
+object UserOrders // Nueva: Esta será para el Cliente
 
 @Serializable
 object Stock
@@ -43,6 +46,9 @@ data class OrderDetailArg(val orderId: Int)
 
 @Serializable
 data class ProductDetailArg(val id: Int)
+
+@Serializable
+data class ProductDetailClientArg(val id: Int)
 
 @Serializable
 data class ProductFormArg(val id: Int = -1)

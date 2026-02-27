@@ -4,51 +4,43 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.miltonvaz.voltio_1.features.orders.domain.entities.Order
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.OrdersUiState
-import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.OrdersViewModel
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
+import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarAdmin
+import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarClient
 import java.util.Locale
 
 @Composable
 fun OrdersScreen(
-    onBackClick: () -> Unit = {},
-    onOrderClick: (Int) -> Unit = {},
-    viewModel: OrdersViewModel = hiltViewModel()
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    OrdersScreenContent(
-        uiState = uiState,
-        onBackClick = onBackClick,
-        onOrderClick = onOrderClick
-    )
-}
-
-@Composable
-fun OrdersScreenContent(
+    navController: NavHostController,
     uiState: OrdersUiState,
-    onBackClick: () -> Unit,
+    isAdmin: Boolean,
     onOrderClick: (Int) -> Unit
 ) {
     Scaffold(
+        bottomBar = {
+            if (isAdmin) {
+                BottomNavBarAdmin(navController = navController, selectedIndex = 2)
+            } else {
+                BottomNavBarClient(navController = navController, selectedIndex = 1)
+            }
+        },
         containerColor = Color(0xFFF8FAFC)
     ) { paddingValues ->
         Column(
@@ -56,82 +48,43 @@ fun OrdersScreenContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(Color(0xFFE0E7FF), Color(0xFFC7D2FE))
-                        )
-                    )
-                    .padding(bottom = 32.dp)
-            ) {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = onBackClick, modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color(0xFF1E1B4B))
-                        }
-                    }
-                    AdminHeader(
-                        title = "Mis Pedidos",
-                        subtitle = "Seguimiento de tus compras en Voltio"
-                    )
-                }
-            }
+            AdminHeader(
+                title = "Mis Pedidos",
+                subtitle = if (isAdmin) "Gestión de órdenes" else "Seguimiento de compras",
+                onBackClick = { navController.popBackStack() },
+                showProfile = true,
+                showCart = false
+            )
 
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
                 if (uiState.isLoading) {
-                    LoadingState()
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color(0xFF4F46E5))
+                    }
                 } else if (uiState.orders.isEmpty()) {
                     EmptyOrdersState()
                 } else {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(top = 24.dp, start = 20.dp, end = 20.dp, bottom = 100.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         item {
                             Text(
-                                text = "Actividad reciente",
+                                text = "Historial de compras",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1E293B),
                                 modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
                             )
                         }
-
                         items(uiState.orders) { order ->
-                            OrderItemCard(
-                                order = order,
-                                onClick = { onOrderClick(order.id) }
-                            )
+                            OrderItemCard(order = order, onClick = { onOrderClick(order.id) })
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun LoadingState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(color = Color(0xFF0F172A), strokeWidth = 4.dp)
-    }
-}
-
-@Composable
-private fun EmptyOrdersState() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("No tienes pedidos aún", fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
     }
 }
 
@@ -139,18 +92,18 @@ private fun EmptyOrdersState() {
 @Composable
 fun OrderItemCard(order: Order, onClick: () -> Unit) {
     val statusColor = when (order.status.lowercase()) {
-        "completado", "entregado" -> Color(0xFF34D399)
-        "pendiente" -> Color(0xFFFBBF24)
-        "cancelado" -> Color(0xFFF87171)
+        "completado", "entregado" -> Color(0xFF10B981)
+        "pendiente" -> Color(0xFFF59E0B)
+        "cancelado" -> Color(0xFFEF4444)
         else -> Color.Gray
     }
 
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -158,81 +111,40 @@ fun OrderItemCard(order: Order, onClick: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Pedido #${order.id}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = Color(0xFF1E1B4B)
-                )
-                Surface(
-                    color = statusColor.copy(alpha = 0.1f),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .clip(CircleShape)
-                                .background(statusColor)
-                        )
-                        Text(
-                            text = order.status.uppercase(),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            color = getStatusColor(order.status)
-                        )
-                    }
+                Text(text = "Pedido #${order.id}", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color(0xFF1E1B4B))
+                Surface(color = statusColor.copy(alpha = 0.1f), shape = RoundedCornerShape(12.dp)) {
+                    Text(
+                        text = order.status.uppercase(),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        color = statusColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
-            ) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
                 Column {
-                    Text("Fecha", fontSize = 11.sp, color = Color.Gray)
+                    Text("Fecha de orden", fontSize = 11.sp, color = Color.Gray)
                     val displayDate = order.orderDate.split("T").firstOrNull() ?: order.orderDate
                     Text(displayDate, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                 }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text("Monto Total", fontSize = 11.sp, color = Color.Gray)
-                    Text(
-                        text = "$${String.format(Locale.US, "%.2f", order.totalAmount)}",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 18.sp,
-                        color = Color(0xFF4F46E5)
-                    )
-                }
+                Text(
+                    text = "$${String.format(Locale.US, "%.2f", order.totalAmount)}",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp,
+                    color = Color(0xFF4F46E5)
+                )
             }
         }
     }
 }
 
-private fun getStatusColor(status: String): Color {
-    return when (status.lowercase()) {
-        "completado", "entregado" -> Color(0xFF10B981)
-        "pendiente" -> Color(0xFFD97706)
-        "cancelado" -> Color(0xFFEF4444)
-        else -> Color.Gray
-    }
-}
-
-@Preview(showBackground = true)
 @Composable
-fun OrdersScreenPreview() {
-    val dummyOrders = listOf(
-        Order(1, 1, "2023-10-27 10:30", "Completado", 150.50, null, null, null, emptyList()),
-        Order(2, 1, "2023-10-26 15:45", "Pendiente", 75.0, null, null, null, emptyList()),
-        Order(3, 1, "2023-10-25 09:12", "Cancelado", 200.0, null, null, null, emptyList())
-    )
-    OrdersScreenContent(
-        uiState = OrdersUiState(orders = dummyOrders, isLoading = false),
-        onBackClick = {},
-        onOrderClick = {}
-    )
+fun EmptyOrdersState() {
+    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(Icons.Default.ListAlt, null, modifier = Modifier.size(80.dp), tint = Color(0xFFE2E8F0))
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Aún no tienes pedidos", fontWeight = FontWeight.Bold, color = Color(0xFF94A3B8), fontSize = 18.sp)
+    }
 }

@@ -66,11 +66,14 @@ class CheckoutViewModel @Inject constructor(
             val totalAmount = cartItems.sumOf { it.product.price * it.quantity }
             val orderDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
             
+            val last4 = _uiState.value.cardInfo.number.takeLast(4).ifBlank { "0000" }
+            val userId = tokenManager.getUserId()
+
             val order = Order(
                 id = 0,
-                userId = 0,
+                userId = userId,
                 orderDate = orderDate,
-                status = "Pendiente",
+                status = "pendiente",
                 totalAmount = totalAmount,
                 description = "Pedido urgente",
                 address = fullAddress,
@@ -85,7 +88,7 @@ class CheckoutViewModel @Inject constructor(
                 }
             )
 
-            val result = createOrderUseCase(token, order)
+            val result = createOrderUseCase(token, order, last4)
             
             _uiState.update { currentState ->
                 result.fold(

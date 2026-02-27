@@ -2,16 +2,17 @@ package com.miltonvaz.voltio_1.features.orders.data.datasource.remote.mapper
 
 import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.model.OrderDto
 import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.model.OrderItemDto
+import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.model.PaymentMethodDto
 import com.miltonvaz.voltio_1.features.orders.domain.entities.Order
 import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderItem
 
 fun OrderDto.toDomain(): Order {
     return Order(
-        id = id,
-        userId = userId,
-        orderDate = orderDate,
-        status = status,
-        totalAmount = totalAmount.toDoubleOrNull() ?: 0.0,
+        id = id ?: 0,
+        userId = userId ?: 0,
+        orderDate = orderDate ?: "",
+        status = status ?: "",
+        totalAmount = totalAmount ?: 0.0,
         description = description,
         address = address,
         paymentType = paymentMethod?.type,
@@ -22,22 +23,22 @@ fun OrderDto.toDomain(): Order {
 fun OrderItemDto.toDomain(): OrderItem {
     return OrderItem(
         productId = productId,
-        productName = productName,
+        productName = null,
         quantity = quantity,
-        unitPrice = unitPrice.toDoubleOrNull() ?: 0.0
+        unitPrice = unitPrice
     )
 }
 
-fun Order.toDto(): OrderDto {
+fun Order.toDto(last4: String): OrderDto {
     return OrderDto(
         id = id,
         userId = userId,
         orderDate = orderDate,
-        status = status,
-        totalAmount = totalAmount.toString(),
+        status = status.lowercase(),
+        totalAmount = totalAmount,
         description = description,
         address = address,
-        paymentMethod = null, // No necesario enviar de vuelta por ahora
+        paymentMethod = paymentType?.let { PaymentMethodDto(it, last4) },
         products = products.map { it.toDto() }
     )
 }
@@ -45,8 +46,7 @@ fun Order.toDto(): OrderDto {
 fun OrderItem.toDto(): OrderItemDto {
     return OrderItemDto(
         productId = productId,
-        productName = productName,
         quantity = quantity,
-        unitPrice = unitPrice.toString()
+        unitPrice = unitPrice
     )
 }

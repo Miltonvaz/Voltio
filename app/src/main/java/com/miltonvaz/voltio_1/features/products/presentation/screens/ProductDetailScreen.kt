@@ -27,7 +27,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
-import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
 
 @Composable
@@ -71,10 +70,6 @@ fun ProductDetailContent(
                 }
             }
 
-            AdminHeader(
-                title = product.name,
-                subtitle = "Microcontroladores"
-            )
 
             Column(
                 modifier = Modifier

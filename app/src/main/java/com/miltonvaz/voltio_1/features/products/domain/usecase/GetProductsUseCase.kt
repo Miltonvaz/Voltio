@@ -2,7 +2,7 @@ package com.miltonvaz.voltio_1.features.products.domain.usecase
 
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.domain.repositories.IProductRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class GetProductsUseCase @Inject constructor(
     private val repository: IProductRepository

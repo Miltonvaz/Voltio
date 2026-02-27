@@ -1,46 +1,53 @@
 package com.miltonvaz.voltio_1.features.products.presentation.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.PrecisionManufacturing
+import androidx.compose.material.icons.filled.SettingsInputAntenna
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.ToggleOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.miltonvaz.voltio_1.R
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.CartViewModel
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarClient
-import com.miltonvaz.voltio_1.features.products.presentation.components.DetailHeaderClient
 import com.miltonvaz.voltio_1.features.products.presentation.components.ProductBannerClient
 
 @Composable
 fun ProductDetailScreenClient(
+    navController: NavHostController,
     product: Product,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToCart: () -> Unit
 ) {
     var quantity by remember { mutableStateOf(1) }
-    var selectedNavIndex by remember { mutableStateOf(0) }
+    val cartViewModel: CartViewModel = hiltViewModel()
 
     Scaffold(
         bottomBar = {
             BottomNavBarClient(
-                selectedIndex = selectedNavIndex,
-                onItemSelected = { selectedNavIndex = it }
+                navController = navController,
+                selectedIndex = 0
             )
         },
-        containerColor = Color(0xFFFFFFFF),
-        contentWindowInsets = WindowInsets(0)
+        containerColor = Color(0xFFF8FAFC)
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -48,99 +55,157 @@ fun ProductDetailScreenClient(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            DetailHeaderClient(
-                productName = product.name,
-                productCategory = "Microcontroladores",
-                categoryIconRes = R.drawable.microcontrolador,
-                onNavigateBack = onNavigateBack
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color(0xFFE0E7FF), Color(0xFFC7D2FE))
+                        )
+                    )
+                    .padding(top = 16.dp, bottom = 24.dp, start = 8.dp, end = 24.dp)
+            ) {
+                Column {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = Color(0xFF1E1B4B))
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = product.name,
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1E1B4B)
+                            )
+                            Text(
+                                text = "Detalles del componente",
+                                fontSize = 14.sp,
+                                color = Color(0xFF4F46E5)
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.Memory,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = Color(0xFF4F46E5).copy(alpha = 0.2f)
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            ProductBannerClient(product = product)
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                DetailCategoryItemClient("Microcontroladores", R.drawable.microcontrolador, true)
-                DetailCategoryItemClient("Sensores", R.drawable.sensor, false)
-                DetailCategoryItemClient("Componentes", R.drawable.componentes, false)
-                DetailCategoryItemClient("Robótica", R.drawable.brazo_robotico, false)
+            Box(modifier = Modifier.padding(horizontal = 20.dp)) {
+                ProductBannerClient(product = product)
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = product.description,
-                fontSize = 14.sp,
-                lineHeight = 22.sp,
-                color = Color(0xFF4A5568),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFD1D5DB))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    IconButton(onClick = { if (quantity > 1) quantity-- }, modifier = Modifier.size(32.dp)) {
-                        Text("−", fontSize = 20.sp, color = Color(0xFF1A1C2E), fontWeight = FontWeight.Bold)
-                    }
-                    Text("$quantity", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1C2E), modifier = Modifier.padding(horizontal = 12.dp))
-                    IconButton(onClick = { quantity++ }, modifier = Modifier.size(32.dp)) {
-                        Text("+", fontSize = 20.sp, color = Color(0xFF1A1C2E), fontWeight = FontWeight.Bold)
-                    }
+                    DetailCategoryItemClient("M-Control", Icons.Default.Memory, true)
+                    DetailCategoryItemClient("Sensores", Icons.Default.SettingsInputAntenna, false)
+                    DetailCategoryItemClient("Componentes", Icons.Default.ToggleOn, false)
+                    DetailCategoryItemClient("Robótica", Icons.Default.PrecisionManufacturing, false)
                 }
 
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCCDAFF)),
-                    shape = RoundedCornerShape(14.dp),
-                    modifier = Modifier.height(48.dp)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Descripción",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1E293B)
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = product.description,
+                    fontSize = 15.sp,
+                    lineHeight = 24.sp,
+                    color = Color(0xFF4A5568)
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color(0xFF1A1C2E), modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Añadir al carrito", color = Color(0xFF1A1C2E), fontWeight = FontWeight.Bold)
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color(0xFFF1F5F9),
+                        modifier = Modifier.height(56.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        ) {
+                            IconButton(onClick = { if (quantity > 1) quantity-- }, modifier = Modifier.size(40.dp)) {
+                                Text("−", fontSize = 22.sp, color = Color(0xFF1A1C2E), fontWeight = FontWeight.Bold)
+                            }
+                            Text(
+                                text = "$quantity",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1A1C2E),
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            IconButton(onClick = { quantity++ }, modifier = Modifier.size(40.dp)) {
+                                Text("+", fontSize = 22.sp, color = Color(0xFF1A1C2E), fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            cartViewModel.addItem(product, quantity)
+                            onNavigateToCart()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4F46E5)),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.height(56.dp).weight(1f).padding(start = 16.dp)
+                    ) {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Añadir", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }
 
 @Composable
-fun DetailCategoryItemClient(label: String, iconRes: Int, isSelected: Boolean) {
+fun DetailCategoryItemClient(label: String, icon: ImageVector, isSelected: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(if (isSelected) Color(0xFFCCDAFF) else Color(0xFFFFFFFF)),
+                .size(56.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(if (isSelected) Color(0xFFE0E7FF) else Color.White),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = iconRes),
+            Icon(
+                imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(26.dp)
+                tint = if (isSelected) Color(0xFF4F46E5) else Color.LightGray,
+                modifier = Modifier.size(28.dp)
             )
         }
-        Text(text = label, fontSize = 9.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
+        Text(text = label, fontSize = 10.sp, color = Color.Gray, modifier = Modifier.padding(top = 6.dp), fontWeight = FontWeight.Medium)
     }
 }

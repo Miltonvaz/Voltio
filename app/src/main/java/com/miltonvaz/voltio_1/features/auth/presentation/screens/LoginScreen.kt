@@ -1,6 +1,5 @@
 package com.miltonvaz.voltio_1.features.auth.presentation.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -22,12 +20,11 @@ import com.miltonvaz.voltio_1.core.ui.components.CustomTextField
 import com.miltonvaz.voltio_1.core.ui.components.PrimaryButton
 import com.miltonvaz.voltio_1.core.ui.components.SocialButton
 import com.miltonvaz.voltio_1.core.ui.components.TextDivider
-import com.miltonvaz.voltio_1.features.auth.presentation.components.LoginTopBar
-import com.miltonvaz.voltio_1.core.ui.theme.bodyFontFamily
 import com.miltonvaz.voltio_1.core.ui.theme.displayFontFamily
 import com.miltonvaz.voltio_1.R
 import com.miltonvaz.voltio_1.features.auth.domain.entities.Auth
 import com.miltonvaz.voltio_1.features.auth.presentation.viewmodel.LoginViewModel
+import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 
 @Composable
 fun LoginScreen(
@@ -48,151 +45,125 @@ fun LoginScreen(
     }
 
     Scaffold(
-        topBar = {
-            LoginTopBar(
-                onBackClick = onBackClick,
-                onRegisterClick = onRegisterClick
-            )
-        },
-        containerColor = Color(0xFFCED9ED)
+        containerColor = Color(0xFFF8FAFC)
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFCED9ED))
+                .background(Color(0xFFF8FAFC))
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.height(24.dp))
+            // Header unificado tal cual la imagen
+            AdminHeader(
+                title = "Bienvenido",
+                subtitle = "Inicia sesión para continuar",
+                onBackClick = null, // No hay atrás en el login principal
+                showProfile = false // No hay perfil antes de loguear
+            )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 24.dp)
+                        .padding(top = 32.dp, bottom = 40.dp),
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.voltio),
-                        contentDescription = "Voltio Logo",
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Voltio",
-                        fontFamily = bodyFontFamily,
-                        fontSize = 48.sp,
+                        text = "¡Hola de nuevo!",
+                        fontFamily = displayFontFamily,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1A1C2E)
                     )
-                }
 
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.White
-                    ),
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = 0.dp
+                    Text(
+                        text = "Voltio - Potencia electrónica",
+                        fontFamily = displayFontFamily,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color(0xFF616161),
                     )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 24.dp)
-                            .padding(top = 32.dp, bottom = 40.dp),
-                        horizontalAlignment = Alignment.Start
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    CustomTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = "Correo electrónico",
+                        keyboardType = KeyboardType.Email
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    CustomTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = "Contraseña",
+                        isPassword = true,
+                        keyboardType = KeyboardType.Password
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    PrimaryButton(
+                        text = "INGRESAR",
+                        onClick = { viewModel.login(email, password) },
+                        enabled = !uiState.isLoading && email.isNotBlank() && password.isNotBlank()
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    TextDivider(text = "O inicia sesión con")
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    SocialButton(
+                        text = "Google",
+                        iconRes = R.drawable.google,
+                        onClick = { }
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    TextButton(
+                        onClick = onRegisterClick,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
-                        Text(
-                            text = "¡Bienvenido de nuevo!",
-                            fontFamily = displayFontFamily,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1A1C2E)
-                        )
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Text(
-                            text = "Voltio - Potencia electronica",
-                            fontFamily = displayFontFamily,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color(0xFF616161),
-                        )
-
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        CustomTextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            label = "correo",
-                            keyboardType = KeyboardType.Email
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        CustomTextField(
-                            value = password,
-                            onValueChange = { password = it },
-                            label = "Contraseña",
-                            isPassword = true,
-                            keyboardType = KeyboardType.Password
-                        )
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        PrimaryButton(
-                            text = "Ingresar",
-                            onClick = {
-                                viewModel.login(email, password)
-                            },
-                            enabled = !uiState.isLoading && email.isNotBlank() && password.isNotBlank()
-                        )
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        TextDivider(text = "O inicia sesión con")
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        SocialButton(
-                            text = "Google",
-                            iconRes = R.drawable.google,
-                            onClick = { }
-                        )
+                        Text("¿No tienes cuenta? Regístrate", color = Color(0xFF4F46E5), fontWeight = FontWeight.Bold)
                     }
                 }
             }
+        }
 
-            if (uiState.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color(0xFF7E8FBC)
-                )
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFF4F46E5))
             }
+        }
 
-            if (uiState.error != null) {
-                Snackbar(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                    containerColor = Color(0xFFB8C5E0),
-                    contentColor = Color(0xFF1A1C2E),
-                    action = {
-                        TextButton(onClick = { viewModel.clearError() }) {
-                            Text("OK", color = Color(0xFF1A1C2E))
-                        }
+        if (uiState.error != null) {
+            Snackbar(
+                modifier = Modifier.padding(16.dp),
+                containerColor = Color(0xFF1E1B4B),
+                contentColor = Color.White,
+                action = {
+                    TextButton(onClick = { viewModel.clearError() }) {
+                        Text("OK", color = Color.White)
                     }
-                ) {
-                    Text(uiState.error ?: "Error desconocido")
                 }
+            ) {
+                Text(uiState.error ?: "Error desconocido")
             }
         }
     }

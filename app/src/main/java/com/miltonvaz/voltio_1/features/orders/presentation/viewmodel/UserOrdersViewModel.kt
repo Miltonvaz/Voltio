@@ -3,7 +3,7 @@ package com.miltonvaz.voltio_1.features.orders.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.network.TokenManager
-import com.miltonvaz.voltio_1.features.orders.domain.usecase.GetOrdersUseCase
+import com.miltonvaz.voltio_1.features.orders.domain.usecase.GetOrdersByUserIdUseCase
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.ObserveNewOrdersUseCase
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.OrdersUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class OrdersViewModel @Inject constructor(
-    private val getOrdersUseCase: GetOrdersUseCase,
+class UserOrdersViewModel @Inject constructor(
+    private val getOrdersByUserIdUseCase: GetOrdersByUserIdUseCase,
     private val observeNewOrdersUseCase: ObserveNewOrdersUseCase,
     private val tokenManager: TokenManager
 ) : ViewModel() {
@@ -24,15 +24,17 @@ class OrdersViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        loadOrders()
+        loadUserOrders()
         observeLiveOrders()
     }
 
-    fun loadOrders() {
+    fun loadUserOrders() {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             val token = tokenManager.getToken() ?: ""
-            val result = getOrdersUseCase(token)
+            val userId = tokenManager.getUserId()
+            val result = getOrdersByUserIdUseCase(token, userId)
+            
             _uiState.update { currentState ->
                 result.fold(
                     onSuccess = { orders ->
@@ -49,17 +51,15 @@ class OrdersViewModel @Inject constructor(
     private fun observeLiveOrders() {
         viewModelScope.launch {
             observeNewOrdersUseCase().collect { newOrder ->
-                _uiState.update { currentState ->
-                    val currentList = currentState.orders.toMutableList()
-                    val index = currentList.indexOfFirst { it.id == newOrder.id }
-                    
-                    if (index != -1) {
-                        currentList[index] = newOrder
-                    } else {
-                        currentList.add(0, newOrder)
+                val currentUserId = tokenManager.getUserId()
+                if (newOrder.userId == currentUserId) {
+                    _uiState.update { currentState ->
+                        val currentList = currentState.orders.toMutableList()
+                        val index = currentList.indexOfFirst { it.id == newOrder.id }
+                        if (index != -1) currentList[index] = newOrder
+                        else currentList.add(0, newOrder)
+                        currentState.copy(orders = currentList)
                     }
-                    
-                    currentState.copy(orders = currentList)
                 }
             }
         }

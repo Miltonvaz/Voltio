@@ -5,7 +5,7 @@ import com.miltonvaz.voltio_1.features.products.data.datasource.remote.mapper.to
 import com.miltonvaz.voltio_1.features.products.data.datasource.remote.model.CreateProductRequest
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.domain.repositories.IProductRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody

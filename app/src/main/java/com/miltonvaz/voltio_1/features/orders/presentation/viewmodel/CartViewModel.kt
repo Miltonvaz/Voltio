@@ -3,7 +3,9 @@ package com.miltonvaz.voltio_1.features.orders.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.features.orders.data.manager.CartManager
+import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CartItem
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CartUiState
+import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +31,10 @@ class CartViewModel @Inject constructor(
                 _uiState.update { it.copy(cartItems = items) }
             }
         }
+    }
+
+    fun addItem(product: Product, quantity: Int) {
+        cartManager.addItem(CartItem(product, quantity))
     }
 
     fun removeItem(productId: Int) {
