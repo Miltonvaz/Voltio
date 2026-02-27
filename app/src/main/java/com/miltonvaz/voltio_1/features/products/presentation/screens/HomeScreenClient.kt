@@ -50,7 +50,6 @@ fun HomeScreenClient(
                 .padding(paddingValues),
             contentPadding = PaddingValues(bottom = 100.dp)
         ) {
-            // Header unificado del sistema
             item {
                 AdminHeader(
                     title = "Voltio Store",
@@ -62,7 +61,6 @@ fun HomeScreenClient(
                 )
             }
 
-            // Buscador con margen de 24dp para alineación perfecta
             item {
                 Spacer(modifier = Modifier.height(20.dp))
                 Box(modifier = Modifier.padding(horizontal = 24.dp)) {
@@ -73,13 +71,11 @@ fun HomeScreenClient(
                 }
             }
 
-            // Fila de Categorías
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 CategoryRow(onCategoryClick = {})
             }
 
-            // Banner promocional centrado
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 Box(modifier = Modifier.padding(horizontal = 24.dp)) {
@@ -87,7 +83,6 @@ fun HomeScreenClient(
                 }
             }
 
-            // Título de sugerencias
             item {
                 Spacer(modifier = Modifier.height(28.dp))
                 Text(
@@ -100,7 +95,6 @@ fun HomeScreenClient(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Cuadrícula de productos
             if (uiState.isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {

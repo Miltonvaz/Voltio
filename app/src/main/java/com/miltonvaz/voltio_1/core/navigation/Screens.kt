@@ -15,13 +15,13 @@ object AdminMenu
 object Home
 
 @Serializable
-object Orders // Esta será para el Admin
+object Orders
 
 @Serializable
-object UserOrders // Nueva: Esta será para el Cliente
+object UserOrders
 
 @Serializable
-object Stock
+data class Stock(val isAdmin: Boolean = false)
 
 @Serializable
 object Inventory
@@ -42,7 +42,7 @@ object CheckoutAddress
 data class CheckoutResult(val isSuccess: Boolean)
 
 @Serializable
-data class OrderDetailArg(val orderId: Int)
+data class OrderDetailArg(val orderId: Int, val isAdmin: Boolean = false)
 
 @Serializable
 data class ProductDetailArg(val id: Int)

@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.secrets.gradle)
     alias(libs.plugins.jetbrainsKotlinSerialization)
-    // Activa Hilt y KSP
     alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.hilt.android)
 }
@@ -38,11 +37,9 @@ android {
 
     buildFeatures {
         compose = true
-        buildConfig = true  //Habilitar variables
+        buildConfig = true
         resValues = true
     }
-
-
 
     flavorDimensions.add("environment")
     productFlavors {
@@ -87,17 +84,17 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
 
-    implementation(libs.androidx.compose.ui.text.google.fonts)      // G Fonts
-    implementation(libs.androidx.lifecycle.viewmodel.compose)       // viewModel()
-    implementation(libs.com.squareup.retrofit2.retrofit)            // Retrofit
-    implementation(libs.com.squareup.retrofit2.converter.json)      // JSON
-    implementation(libs.io.coil.kt.coil.compose)                    // Coil
-    implementation(libs.androidx.navigation.compose)                // Navigation
-    implementation(libs.androidx.compose.material.icons.extended)   // Icons extendend
-    implementation(libs.hilt.android)                               // Implementación de Hilt
-    implementation(libs.hilt.navigation.compose)                    // Integración con Jetpack Compose
-    implementation(libs.socket.io.client)                           // Socket.IO
-    ksp(libs.hilt.compiler)                                         // KSP
+    implementation(libs.androidx.compose.ui.text.google.fonts)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.com.squareup.retrofit2.retrofit)
+    implementation(libs.com.squareup.retrofit2.converter.json)
+    implementation(libs.io.coil.kt.coil.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    implementation(libs.socket.io.client)
+    ksp(libs.hilt.compiler)
 
 
     testImplementation(libs.junit)

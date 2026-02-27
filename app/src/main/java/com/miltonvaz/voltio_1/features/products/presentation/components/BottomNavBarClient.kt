@@ -4,12 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.ListAlt
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.*
@@ -22,8 +21,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.miltonvaz.voltio_1.core.navigation.Cart
-import com.miltonvaz.voltio_1.core.navigation.Orders
 import com.miltonvaz.voltio_1.core.navigation.UserHome
+import com.miltonvaz.voltio_1.core.navigation.UserOrders
 
 data class BottomNavItem(
     val label: String,
@@ -39,9 +38,9 @@ fun BottomNavBarClient(
 ) {
     val items = listOf(
         BottomNavItem("Inicio", Icons.Filled.Home, Icons.Outlined.Home, UserHome),
-        BottomNavItem("Pedidos", Icons.Filled.ListAlt, Icons.Outlined.ListAlt, Orders),
+        BottomNavItem("Pedidos", Icons.AutoMirrored.Filled.ListAlt, Icons.AutoMirrored.Filled.ListAlt, UserOrders),
         BottomNavItem("Carrito", Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart, Cart),
-        BottomNavItem("Perfil", Icons.Filled.Person, Icons.Outlined.Person, UserHome) // Placeholder
+        BottomNavItem("Perfil", Icons.Filled.Person, Icons.Outlined.Person, UserHome)
     )
 
     Box(

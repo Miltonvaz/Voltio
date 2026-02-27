@@ -39,5 +39,25 @@ class VoltioSocketManager @Inject constructor(
         }
     }
 
-    override fun observeOrders(): Flow<String> = observeEvent("nueva_orden")
+    override fun observeOrders(): Flow<String> = callbackFlow {
+        val listener = Emitter.Listener { args ->
+            if (args.isNotEmpty()) {
+                trySend(args[0].toString())
+            }
+        }
+        
+        val events = listOf(
+            "nueva_orden", 
+            "orden_actualizada", 
+            "orden_pendiente", 
+            "orden_entregada", 
+            "orden_cancelada"
+        )
+        
+        events.forEach { socket.on(it, listener) }
+        
+        awaitClose {
+            events.forEach { socket.off(it, listener) }
+        }
+    }
 }

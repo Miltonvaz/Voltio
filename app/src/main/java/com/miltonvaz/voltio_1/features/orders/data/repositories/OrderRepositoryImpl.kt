@@ -1,34 +1,32 @@
 package com.miltonvaz.voltio_1.features.orders.data.repositories
 
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.miltonvaz.voltio_1.core.network.ISocketManager
 import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.api.OrderApiService
 import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.mapper.toDomain
 import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.mapper.toDto
+import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.mapper.toUpdateRequest
 import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.model.OrderDto
+import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.model.OrderStatusUpdateDto
 import com.miltonvaz.voltio_1.features.orders.domain.entities.Order
 import com.miltonvaz.voltio_1.features.orders.domain.repositories.IOrderRepository
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
+import javax.inject.Inject
 
 class OrderRepositoryImpl @Inject constructor(
     private val api: OrderApiService,
-    private val socketManager: ISocketManager, // Inyectado directamente, estilo Retrofit
+    private val socketManager: ISocketManager,
     private val gson: Gson
 ) : IOrderRepository {
-
-    private val TAG = "OrderRepositoryImpl"
 
     private fun formatAuth(token: String) = "Bearer $token"
     private fun formatCookie(token: String) = "access_token=$token"
 
     override suspend fun getAllOrders(token: String): List<Order> {
         return try {
-            val response = api.getAllOrders(formatAuth(token), formatCookie(token))
-            response.map { it.toDomain() }
+            api.getAllOrders(formatAuth(token), formatCookie(token)).map { it.toDomain() }
         } catch (e: Exception) {
             emptyList()
         }
@@ -51,13 +49,12 @@ class OrderRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateOrder(token: String, id: Int, order: Order, last4: String) {
-        try {
-            val dbPayload = OrderDto(status = order.status)
-            api.updateOrderInDatabase(formatAuth(token), formatCookie(token), id, dbPayload)
-            api.notifyOrderUpdate(formatAuth(token), formatCookie(token), order.toDto(last4))
-        } catch (e: Exception) {
-            throw e
-        }
+        val requestDto = order.toUpdateRequest(last4)
+        api.updateOrderInDatabase(formatAuth(token), formatCookie(token), id, requestDto)
+
+        val updatePayload = OrderStatusUpdateDto(id, order.userId, order.status.apiValue)
+        socketManager.emit("orden_actualizada", gson.toJson(updatePayload))
+        api.notifyOrderUpdate(formatAuth(token), formatCookie(token), updatePayload)
     }
 
     override suspend fun deleteOrder(token: String, id: Int) {
@@ -65,7 +62,7 @@ class OrderRepositoryImpl @Inject constructor(
     }
 
     override fun observeNewOrders(): Flow<Order> {
-        socketManager.connect() // Asegura conexión
+        socketManager.connect()
         return socketManager.observeOrders().mapNotNull { json ->
             try {
                 val jsonObject = gson.fromJson(json, JsonObject::class.java)

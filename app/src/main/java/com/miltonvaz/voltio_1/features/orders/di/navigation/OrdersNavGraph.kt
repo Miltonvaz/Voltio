@@ -35,7 +35,7 @@ class OrdersNavGraph @Inject constructor() : FeatureNavGraph {
                 uiState = uiState,
                 isAdmin = true,
                 onOrderClick = { orderId ->
-                    navController.navigate(OrderDetailArg(orderId = orderId))
+                    navController.navigate(OrderDetailArg(orderId = orderId, isAdmin = true))
                 }
             )
         }
@@ -50,14 +50,16 @@ class OrdersNavGraph @Inject constructor() : FeatureNavGraph {
                 uiState = uiState,
                 isAdmin = false,
                 onOrderClick = { orderId ->
-                    navController.navigate(OrderDetailArg(orderId = orderId))
+                    navController.navigate(OrderDetailArg(orderId = orderId, isAdmin = false))
                 }
             )
         }
 
-        navGraphBuilder.composable<OrderDetailArg> {
+        navGraphBuilder.composable<OrderDetailArg> { backStackEntry ->
+            val args = backStackEntry.toRoute<OrderDetailArg>()
             OrderDetailScreen(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                isAdmin = args.isAdmin
             )
         }
 

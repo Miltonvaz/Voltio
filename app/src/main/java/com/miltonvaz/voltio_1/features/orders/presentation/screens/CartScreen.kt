@@ -51,7 +51,6 @@ fun CartScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Header unificado con icono de carrito
             AdminHeader(
                 title = "Tu Carrito",
                 subtitle = "${uiState.cartItems.size} Productos seleccionados",

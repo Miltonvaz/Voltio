@@ -27,6 +27,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
+import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
 
 @Composable
@@ -64,16 +65,18 @@ fun ProductDetailContent(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onNavigateBack, modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color(0xFF1E1B4B))
-                }
-            }
-
+            AdminHeader(
+                title = "Detalle del Producto",
+                subtitle = product.name,
+                onBackClick = onNavigateBack,
+                showProfile = true,
+                showCart = false
+            )
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .offset(y = (-20).dp) // Superposición suave sobre el header
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                     .background(Color.White)
                     .padding(24.dp)

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.network.TokenManager
+import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderStatus
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.GetOrderByIdUseCase
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.ObserveNewOrdersUseCase
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.UpdateOrderStatusUseCase
@@ -65,20 +66,18 @@ class OrderDetailViewModel @Inject constructor(
         }
     }
 
-    fun updateStatus(newStatus: String) {
+    fun updateStatus(newStatus: OrderStatus) {
         val currentOrder = _uiState.value.order ?: return
         _uiState.update { it.copy(isUpdating = true) }
         
         viewModelScope.launch {
             val token = tokenManager.getToken() ?: ""
             val updatedOrder = currentOrder.copy(status = newStatus)
-            val result = updateOrderStatusUseCase(token, currentOrder.id, updatedOrder)
+            val result = updateOrderStatusUseCase(token, currentOrder.id, updatedOrder, currentOrder.last4 ?: "")
             
             _uiState.update { currentState ->
                 result.fold(
                     onSuccess = {
-                        // El UseCase ahora devuelve Result<Unit>.
-                        // La actualización visual se hace localmente y se confirma vía WebSocket.
                         currentState.copy(isUpdating = false, order = updatedOrder, error = null)
                     },
                     onFailure = { error ->

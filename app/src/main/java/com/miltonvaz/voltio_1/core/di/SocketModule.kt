@@ -4,8 +4,11 @@ import com.miltonvaz.voltio_1.core.network.ISocketManager
 import com.miltonvaz.voltio_1.core.network.VoltioSocketManager
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.socket.client.IO
+import io.socket.client.Socket
 import javax.inject.Singleton
 
 @Module
@@ -17,4 +20,15 @@ abstract class SocketModule {
     abstract fun bindSocketManager(
         voltioSocketManager: VoltioSocketManager
     ): ISocketManager
+
+    companion object {
+        @Provides
+        @Singleton
+        fun provideSocket(@VoltioWebSocketUrl url: String): Socket {
+            val opts = IO.Options().apply {
+                transports = arrayOf("websocket")
+            }
+            return IO.socket(url, opts)
+        }
+    }
 }

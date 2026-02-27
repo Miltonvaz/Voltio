@@ -52,7 +52,6 @@ fun CheckoutResultScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Icono central con diseño de anillos
             Box(contentAlignment = Alignment.Center) {
                 Surface(
                     modifier = Modifier.size(140.dp),
@@ -83,7 +82,6 @@ fun CheckoutResultScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Card de contenido
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(32.dp),
@@ -124,7 +122,6 @@ fun CheckoutResultScreen(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Botón de acción final
             Button(
                 onClick = onFinish,
                 modifier = Modifier

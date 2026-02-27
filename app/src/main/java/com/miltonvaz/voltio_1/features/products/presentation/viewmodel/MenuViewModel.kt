@@ -66,8 +66,6 @@ class MenuViewModel @Inject constructor(
     private fun observeLiveUpdates() {
         viewModelScope.launch {
             observeNewOrdersUseCase().collect { _ ->
-                // Cuando llega una nueva orden, refrescamos los datos del dashboard
-                // Esto actualizará el contador de pedidos y el stock si hubo ventas
                 loadDashboardData()
             }
         }

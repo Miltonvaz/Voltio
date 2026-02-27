@@ -43,7 +43,6 @@ fun AdminHeader(
             .padding(bottom = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Fila superior: Retroceso (opcional)
             if (onBackClick != null) {
                 IconButton(
                     onClick = onBackClick,
@@ -59,7 +58,6 @@ fun AdminHeader(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Fila central: Logo y (Perfil o Carrito)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -109,7 +107,6 @@ fun AdminHeader(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Títulos
             Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                 Text(
                     text = title,

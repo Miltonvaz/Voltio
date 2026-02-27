@@ -6,6 +6,7 @@ import com.miltonvaz.voltio_1.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.orders.data.manager.CartManager
 import com.miltonvaz.voltio_1.features.orders.domain.entities.Order
 import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderItem
+import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderStatus
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.CreateOrderUseCase
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.AddressInfo
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CardInfo
@@ -73,11 +74,12 @@ class CheckoutViewModel @Inject constructor(
                 id = 0,
                 userId = userId,
                 orderDate = orderDate,
-                status = "pendiente",
+                status = OrderStatus.PENDING,
                 totalAmount = totalAmount,
                 description = "Pedido urgente",
                 address = fullAddress,
                 paymentType = "tarjeta",
+                last4 = last4,
                 products = cartItems.map { 
                     OrderItem(
                         productId = it.product.id,

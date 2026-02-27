@@ -1,6 +1,7 @@
 package com.miltonvaz.voltio_1.features.products.presentation.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,50 +29,74 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
+import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarAdmin
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.HomeUiState
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
 
 @Composable
 fun StockScreen(
+    navController: NavHostController,
+    isAdmin: Boolean = true,
     onBackClick: () -> Unit = {},
     onAddProduct: () -> Unit = {},
     onEditProduct: (Int) -> Unit = {},
+    onProductClick: (Int) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.loadProducts()
+    }
+
     StockScreenContent(
+        navController = navController,
         uiState = uiState,
+        isAdmin = isAdmin,
         onBackClick = onBackClick,
         onAddProduct = onAddProduct,
         onEditProduct = onEditProduct,
+        onProductClick = onProductClick,
         onDeleteProduct = { viewModel.deleteProduct(it) }
     )
 }
 
 @Composable
 fun StockScreenContent(
+    navController: NavHostController,
     uiState: HomeUiState,
+    isAdmin: Boolean,
     onBackClick: () -> Unit,
     onAddProduct: () -> Unit,
     onEditProduct: (Int) -> Unit,
+    onProductClick: (Int) -> Unit,
     onDeleteProduct: (Int) -> Unit
 ) {
     Scaffold(
         containerColor = Color(0xFFF8FAFC),
+        bottomBar = {
+            if (isAdmin) {
+                BottomNavBarAdmin(navController = navController, selectedIndex = 2)
+            }
+        },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onAddProduct,
-                containerColor = Color(0xFFA0BBF8),
-                contentColor = Color.Black,
-                shape = RoundedCornerShape(16.dp),
-                elevation = FloatingActionButtonDefaults.elevation(12.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Text("Nuevo Producto", modifier = Modifier.padding(start = 8.dp))
+            if (isAdmin) {
+                ExtendedFloatingActionButton(
+                    onClick = onAddProduct,
+                    containerColor = Color(0xFFA0BBF8),
+                    contentColor = Color.Black,
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = FloatingActionButtonDefaults.elevation(12.dp),
+                    modifier = Modifier.padding(bottom = 12.dp) // Bajado para estar cerca del bottom bar
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Text("Nuevo Producto", modifier = Modifier.padding(start = 8.dp))
+                }
             }
         }
     ) { paddingValues ->
@@ -91,12 +117,10 @@ fun StockScreenContent(
                     .padding(bottom = 32.dp)
             ) {
                 Column {
-                    IconButton(onClick = onBackClick, modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color(0xFF1E1B4B))
-                    }
                     AdminHeader(
                         title = "Control de Stock",
-                        subtitle = "Gestiona tu inventario en tiempo real"
+                        subtitle = if (isAdmin) "Gestiona tu inventario en tiempo real" else "Consulta disponibilidad",
+                        onBackClick = onBackClick
                     )
                 }
             }
@@ -123,8 +147,10 @@ fun StockScreenContent(
                         items(uiState.products) { product ->
                             StockItemCard(
                                 product = product,
+                                showActions = isAdmin,
                                 onEdit = { onEditProduct(product.id) },
-                                onDelete = { onDeleteProduct(product.id) }
+                                onDelete = { onDeleteProduct(product.id) },
+                                onClick = { onProductClick(product.id) }
                             )
                         }
                     }
@@ -137,14 +163,18 @@ fun StockScreenContent(
 @Composable
 fun StockItemCard(
     product: Product,
+    showActions: Boolean,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onClick: () -> Unit
 ) {
     val isLowStock = product.stock < 10
     val stockColor = if (isLowStock) Color(0xFFEF4444) else Color(0xFF10B981)
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -202,30 +232,32 @@ fun StockItemCard(
                 }
             }
 
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 12.dp),
-                thickness = 0.5.dp,
-                color = Color(0xFFE2E8F0)
-            )
+            if (showActions) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 12.dp),
+                    thickness = 0.5.dp,
+                    color = Color(0xFFE2E8F0)
+                )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(
-                    onClick = onEdit,
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF4F46E5))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Editar", fontWeight = FontWeight.Bold)
-                }
+                    TextButton(
+                        onClick = onEdit,
+                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF4F46E5))
+                    ) {
+                        Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Editar", fontWeight = FontWeight.Bold)
+                    }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color(0xFFF87171))
+                    IconButton(onClick = onDelete) {
+                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color(0xFFF87171))
+                    }
                 }
             }
         }
@@ -247,10 +279,13 @@ fun StockScreenPreview() {
         Product(2, "A002", "Sensor Ultrasonico", "Desc", 5.0, 50, null, 1, "2023-10-10")
     )
     StockScreenContent(
+        navController = rememberNavController(),
         uiState = HomeUiState(products = dummyProducts, isLoading = false),
+        isAdmin = true,
         onBackClick = {},
         onAddProduct = {},
         onEditProduct = {},
+        onProductClick = {},
         onDeleteProduct = {}
     )
 }

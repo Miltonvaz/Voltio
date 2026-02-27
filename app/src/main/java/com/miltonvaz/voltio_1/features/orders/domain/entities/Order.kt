@@ -4,11 +4,12 @@ data class Order(
     val id: Int,
     val userId: Int,
     val orderDate: String,
-    val status: String,
+    val status: OrderStatus,
     val totalAmount: Double,
     val description: String?,
     val address: String?,
     val paymentType: String?,
+    val last4: String?,
     val products: List<OrderItem>
 )
 

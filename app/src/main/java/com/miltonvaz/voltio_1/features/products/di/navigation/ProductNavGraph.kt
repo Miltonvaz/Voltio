@@ -21,8 +21,9 @@ class ProductNavGraph @Inject constructor() : FeatureNavGraph {
     ) {
         navGraphBuilder.composable<AdminMenu> {
             MenuScreen(
+                navController = navController,
                 onNavigateToOrders = { navController.navigate(Orders) },
-                onNavigateToStock = { navController.navigate(Stock) },
+                onNavigateToStock = { navController.navigate(Stock(isAdmin = true)) },
                 onNavigateToInventory = { navController.navigate(Inventory) }
             )
         }
@@ -40,6 +41,7 @@ class ProductNavGraph @Inject constructor() : FeatureNavGraph {
             }
 
             HomeScreen(
+                navController = navController,
                 viewModel = viewModel,
                 onAddProduct = { navController.navigate(ProductFormArg(id = -1)) },
                 onEditProduct = { id -> navController.navigate(ProductFormArg(id = id)) },
@@ -57,11 +59,15 @@ class ProductNavGraph @Inject constructor() : FeatureNavGraph {
             )
         }
 
-        navGraphBuilder.composable<Stock> {
+        navGraphBuilder.composable<Stock> { backStackEntry ->
+            val args = backStackEntry.toRoute<Stock>()
             StockScreen(
+                navController = navController,
+                isAdmin = args.isAdmin,
                 onBackClick = { navController.popBackStack() },
                 onAddProduct = { navController.navigate(ProductFormArg(id = -1)) },
-                onEditProduct = { id -> navController.navigate(ProductFormArg(id = id)) }
+                onEditProduct = { id -> navController.navigate(ProductFormArg(id = id)) },
+                onProductClick = { id -> navController.navigate(ProductDetailArg(id = id)) }
             )
         }
 

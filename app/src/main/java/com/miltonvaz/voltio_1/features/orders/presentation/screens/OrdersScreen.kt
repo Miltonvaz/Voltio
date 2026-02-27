@@ -1,25 +1,23 @@
 package com.miltonvaz.voltio_1.features.orders.presentation.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.miltonvaz.voltio_1.core.navigation.Cart
 import com.miltonvaz.voltio_1.features.orders.domain.entities.Order
+import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderStatus
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.OrdersUiState
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarAdmin
@@ -36,7 +34,7 @@ fun OrdersScreen(
     Scaffold(
         bottomBar = {
             if (isAdmin) {
-                BottomNavBarAdmin(navController = navController, selectedIndex = 2)
+                BottomNavBarAdmin(navController = navController, selectedIndex = 1)
             } else {
                 BottomNavBarClient(navController = navController, selectedIndex = 1)
             }
@@ -49,11 +47,12 @@ fun OrdersScreen(
                 .padding(paddingValues)
         ) {
             AdminHeader(
-                title = "Mis Pedidos",
-                subtitle = if (isAdmin) "Gestión de órdenes" else "Seguimiento de compras",
-                onBackClick = { navController.popBackStack() },
+                title = if (isAdmin) "Gestión de Pedidos" else "Mis Pedidos",
+                subtitle = if (isAdmin) "Panel de administración" else "Seguimiento de tus compras",
+                onBackClick = null,
                 showProfile = true,
-                showCart = false
+                showCart = !isAdmin,
+                onCartClick = { if (!isAdmin) navController.navigate(Cart) }
             )
 
             Box(modifier = Modifier.weight(1f)) {
@@ -71,7 +70,7 @@ fun OrdersScreen(
                     ) {
                         item {
                             Text(
-                                text = "Historial de compras",
+                                text = if (isAdmin) "Todos los pedidos" else "Historial de compras",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1E293B),
@@ -91,11 +90,12 @@ fun OrdersScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderItemCard(order: Order, onClick: () -> Unit) {
-    val statusColor = when (order.status.lowercase()) {
-        "completado", "entregado" -> Color(0xFF10B981)
-        "pendiente" -> Color(0xFFF59E0B)
-        "cancelado" -> Color(0xFFEF4444)
-        else -> Color.Gray
+    val statusColor = when (order.status) {
+        OrderStatus.COMPLETED -> Color(0xFF10B981)
+        OrderStatus.PENDING -> Color(0xFFF59E0B)
+        OrderStatus.CANCELLED -> Color(0xFFEF4444)
+        OrderStatus.CONFIRMED -> Color(0xFF3B82F6)
+        OrderStatus.IN_PROGRESS -> Color(0xFF8B5CF6)
     }
 
     Card(
@@ -114,7 +114,7 @@ fun OrderItemCard(order: Order, onClick: () -> Unit) {
                 Text(text = "Pedido #${order.id}", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = Color(0xFF1E1B4B))
                 Surface(color = statusColor.copy(alpha = 0.1f), shape = RoundedCornerShape(12.dp)) {
                     Text(
-                        text = order.status.uppercase(),
+                        text = order.status.apiValue.uppercase(Locale.getDefault()),
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         color = statusColor,
                         fontWeight = FontWeight.Bold,

@@ -44,13 +44,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminProductCard
+import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarAdmin
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    navController: NavHostController,
     onAddProduct: () -> Unit,
     onEditProduct: (Int) -> Unit,
     onProductClick: (Int) -> Unit,
@@ -61,30 +65,34 @@ fun HomeScreen(
 
     Scaffold(
         containerColor = Color(0xFFF8FAFC),
+        bottomBar = {
+            BottomNavBarAdmin(navController = navController, selectedIndex = 0)
+        },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onAddProduct,
                 containerColor = Color(0xFFA0BBF8),
-                contentColor = Color.Companion.Black,
+                contentColor = Color.Black,
                 shape = RoundedCornerShape(16.dp),
-                elevation = FloatingActionButtonDefaults.elevation(12.dp)
+                elevation = FloatingActionButtonDefaults.elevation(12.dp),
+                modifier = Modifier.padding(bottom = 80.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null)
-                Text("Nuevo Producto", modifier = Modifier.Companion.padding(start = 8.dp))
+                Text("Nuevo Producto", modifier = Modifier.padding(start = 8.dp))
             }
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             Box(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
                     .background(
-                        brush = Brush.Companion.verticalGradient(
+                        brush = Brush.verticalGradient(
                             colors = listOf(Color(0xFFE0E7FF), Color(0xFFC7D2FE))
                         )
                     )
@@ -97,12 +105,12 @@ fun HomeScreen(
                     )
 
                     Surface(
-                        modifier = Modifier.Companion
+                        modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp)
                             .height(56.dp),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-                        color = Color.Companion.White,
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color.White,
                         shadowElevation = 8.dp
                     ) {
                         TextField(
@@ -111,7 +119,7 @@ fun HomeScreen(
                             placeholder = {
                                 Text(
                                     "Buscar componentes...",
-                                    color = Color.Companion.LightGray
+                                    color = Color.LightGray
                                 )
                             },
                             leadingIcon = {
@@ -121,12 +129,12 @@ fun HomeScreen(
                                     tint = Color(0xFF4F46E5)
                                 )
                             },
-                            modifier = Modifier.Companion.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                             colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Companion.White,
-                                unfocusedContainerColor = Color.Companion.White,
-                                focusedIndicatorColor = Color.Companion.Transparent,
-                                unfocusedIndicatorColor = Color.Companion.Transparent
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
                             ),
                             singleLine = true
                         )
@@ -134,7 +142,7 @@ fun HomeScreen(
                 }
             }
 
-            Box(modifier = Modifier.Companion.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 if (uiState.isLoading) {
                     LoadingState()
                 } else if (uiState.products.isEmpty()) {
@@ -148,7 +156,7 @@ fun HomeScreen(
                     }
 
                     LazyColumn(
-                        modifier = Modifier.Companion.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(
                             top = 24.dp,
                             start = 20.dp,
@@ -161,9 +169,9 @@ fun HomeScreen(
                             Text(
                                 text = "Categorías principales",
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Companion.Bold,
+                                fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1E293B),
-                                modifier = Modifier.Companion.padding(start = 4.dp, bottom = 8.dp)
+                                modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
                             )
                         }
 
@@ -185,8 +193,8 @@ fun HomeScreen(
 @Composable
 private fun LoadingState() {
     Box(
-        modifier = Modifier.Companion.fillMaxSize(),
-        contentAlignment = Alignment.Companion.Center
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(color = Color(0xFF0F172A), strokeWidth = 4.dp)
     }
@@ -195,17 +203,17 @@ private fun LoadingState() {
 @Composable
 private fun EmptyState() {
     Column(
-        modifier = Modifier.Companion.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Companion.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             Icons.Default.Inventory2,
             null,
-            modifier = Modifier.Companion.size(64.dp),
+            modifier = Modifier.size(64.dp),
             tint = Color(0xFFCBD5E1)
         )
-        Text("Inventario vacío", fontWeight = FontWeight.Companion.Bold, color = Color(0xFF64748B))
+        Text("Inventario vacío", fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
     }
 }
 
@@ -214,13 +222,11 @@ private fun EmptyState() {
 @Composable
 fun HomeScreenPreview() {
     MaterialTheme {
-        // Pasamos lambdas vacías para los eventos de navegación
         HomeScreen(
+            navController = rememberNavController(),
             onAddProduct = {},
             onEditProduct = { id -> },
             onProductClick = { id -> }
-            // Nota: El viewModel se omitirá o fallará si Hilt no está configurado
-            // Lo ideal es envolver el hiltViewModel en un condicional o usar State Hoisting
         )
     }
 }

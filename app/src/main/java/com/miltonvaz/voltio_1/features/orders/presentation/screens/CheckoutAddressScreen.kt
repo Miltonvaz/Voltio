@@ -87,7 +87,6 @@ fun CheckoutAddressScreenContent(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header con estilo Voltio
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

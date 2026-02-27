@@ -10,7 +10,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-
 class ProductRepositoryImpl @Inject constructor(
     private val api: ProductApiService
 ) : IProductRepository {
@@ -93,7 +92,12 @@ class ProductRepositoryImpl @Inject constructor(
 
         return response.toDomain()
     }
+
     override suspend fun deleteProduct(token: String, id: Int) {
         api.deleteProduct(formatAuth(token), formatCookie(token), id)
+    }
+
+    override suspend fun updateStock(token: String, id: Int, newStock: Int) {
+        api.updateStock(formatAuth(token), formatCookie(token), id, newStock)
     }
 }
