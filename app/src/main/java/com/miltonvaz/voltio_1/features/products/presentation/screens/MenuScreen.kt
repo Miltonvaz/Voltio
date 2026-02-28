@@ -4,13 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Inventory2
-import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -26,17 +25,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
+import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarAdmin
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.MenuUiState
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.MenuViewModel
 import java.util.Locale
 
 @Composable
 fun MenuScreen(
+    navController: NavHostController,
     onNavigateToOrders: () -> Unit,
     onNavigateToStock: () -> Unit,
     onNavigateToInventory: () -> Unit,
@@ -45,6 +48,7 @@ fun MenuScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     MenuScreenContent(
+        navController = navController,
         uiState = uiState,
         onNavigateToOrders = onNavigateToOrders,
         onNavigateToStock = onNavigateToStock,
@@ -54,6 +58,7 @@ fun MenuScreen(
 
 @Composable
 fun MenuScreenContent(
+    navController: NavHostController,
     uiState: MenuUiState,
     onNavigateToOrders: () -> Unit,
     onNavigateToStock: () -> Unit,
@@ -62,43 +67,7 @@ fun MenuScreenContent(
     Scaffold(
         containerColor = Color(0xFFF8FAFC),
         bottomBar = {
-            Surface(
-                tonalElevation = 8.dp,
-                shadowElevation = 12.dp,
-                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                color = Color.White
-            ) {
-                NavigationBar(
-                    containerColor = Color.Transparent,
-                    modifier = Modifier.height(80.dp)
-                ) {
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Inventory2, null) },
-                        label = { Text("Almacén") },
-                        selected = true,
-                        onClick = onNavigateToInventory,
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = Color(0xFF4F46E5),
-                            indicatorColor = Color(0xFFE0E7FF),
-                            unselectedIconColor = Color(0xFF94A3B8)
-                        )
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.AutoMirrored.Filled.ListAlt, null) },
-                        label = { Text("Pedidos") },
-                        selected = false,
-                        onClick = onNavigateToOrders,
-                        colors = NavigationBarItemDefaults.colors(unselectedIconColor = Color(0xFF94A3B8))
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.BarChart, null) },
-                        label = { Text("Stock") },
-                        selected = false,
-                        onClick = onNavigateToStock,
-                        colors = NavigationBarItemDefaults.colors(unselectedIconColor = Color(0xFF94A3B8))
-                    )
-                }
-            }
+            BottomNavBarAdmin(navController = navController, selectedIndex = -1)
         }
     ) { paddingValues ->
         LazyColumn(
@@ -137,7 +106,7 @@ fun MenuScreenContent(
                     StatCard(
                         label = "Valor Stock",
                         value = String.format(Locale.US, "$%.2f", uiState.totalStockValue),
-                        icon = Icons.Default.TrendingUp,
+                        icon = Icons.AutoMirrored.Filled.TrendingUp,
                         color = Color(0xFF10B981),
                         modifier = Modifier.weight(1f)
                     )
@@ -156,7 +125,9 @@ fun MenuScreenContent(
             }
 
             if (uiState.isLoading) {
-                item { LoadingState() }
+                item {
+                    LoadingState()
+                }
             } else if (uiState.products.isEmpty()) {
                 item {
                     Text(
@@ -245,6 +216,7 @@ private fun LoadingState() {
 fun MenuScreenPreview() {
     MaterialTheme {
         MenuScreenContent(
+            navController = rememberNavController(),
             uiState = MenuUiState(isLoading = false, products = emptyList(), totalOrdersToday = 0, totalStockValue = 1250.50),
             onNavigateToOrders = {},
             onNavigateToStock = {},

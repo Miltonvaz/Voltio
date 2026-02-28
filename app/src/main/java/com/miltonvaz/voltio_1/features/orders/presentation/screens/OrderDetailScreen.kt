@@ -24,10 +24,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miltonvaz.voltio_1.features.orders.domain.entities.Order
 import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderItem
+import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderStatus
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.OrderDetailUiState
 import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.OrderDetailViewModel
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
@@ -36,12 +37,14 @@ import java.util.Locale
 @Composable
 fun OrderDetailScreen(
     onBackClick: () -> Unit,
+    isAdmin: Boolean = false,
     viewModel: OrderDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     OrderDetailContent(
         uiState = uiState,
+        isAdmin = isAdmin,
         onBackClick = onBackClick,
         onStatusChange = { viewModel.updateStatus(it) }
     )
@@ -51,8 +54,9 @@ fun OrderDetailScreen(
 @Composable
 fun OrderDetailContent(
     uiState: OrderDetailUiState,
+    isAdmin: Boolean,
     onBackClick: () -> Unit,
-    onStatusChange: (String) -> Unit
+    onStatusChange: (OrderStatus) -> Unit
 ) {
     var showStatusDialog by remember { mutableStateOf(false) }
 
@@ -94,7 +98,11 @@ fun OrderDetailContent(
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     item {
-                        StatusSection(order.status) { showStatusDialog = true }
+                        StatusSection(
+                            status = order.status,
+                            showEdit = isAdmin,
+                            onEditClick = { showStatusDialog = true }
+                        )
                     }
 
                     item {
@@ -150,7 +158,7 @@ fun OrderDetailContent(
 
     if (showStatusDialog) {
         StatusUpdateDialog(
-            currentStatus = uiState.order?.status ?: "",
+            currentStatus = uiState.order?.status ?: OrderStatus.PENDING,
             onDismiss = { showStatusDialog = false },
             onConfirm = { 
                 onStatusChange(it)
@@ -161,12 +169,13 @@ fun OrderDetailContent(
 }
 
 @Composable
-fun StatusSection(status: String, onEditClick: () -> Unit) {
-    val statusColor = when (status.lowercase()) {
-        "completado", "entregado" -> Color(0xFF10B981)
-        "pendiente" -> Color(0xFFFBBF24)
-        "cancelado" -> Color(0xFFEF4444)
-        else -> Color.Gray
+fun StatusSection(status: OrderStatus, showEdit: Boolean, onEditClick: () -> Unit) {
+    val statusColor = when (status) {
+        OrderStatus.COMPLETED -> Color(0xFF10B981)
+        OrderStatus.PENDING -> Color(0xFFFBBF24)
+        OrderStatus.CANCELLED -> Color(0xFFEF4444)
+        OrderStatus.CONFIRMED -> Color(0xFF3B82F6)
+        OrderStatus.IN_PROGRESS -> Color(0xFF8B5CF6)
     }
 
     Surface(
@@ -184,11 +193,13 @@ fun StatusSection(status: String, onEditClick: () -> Unit) {
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text("Estado", fontSize = 12.sp, color = Color.Gray)
-                    Text(status.uppercase(), fontWeight = FontWeight.ExtraBold, color = statusColor)
+                    Text(status.apiValue.uppercase(Locale.getDefault()), fontWeight = FontWeight.ExtraBold, color = statusColor)
                 }
             }
-            IconButton(onClick = onEditClick) {
-                Icon(Icons.Default.Edit, contentDescription = "Cambiar Estado", tint = Color(0xFF4F46E5))
+            if (showEdit) {
+                IconButton(onClick = onEditClick) {
+                    Icon(Icons.Default.Edit, contentDescription = "Cambiar Estado", tint = Color(0xFF4F46E5))
+                }
             }
         }
     }
@@ -243,8 +254,8 @@ fun OrderItemRow(item: OrderItem) {
 }
 
 @Composable
-fun StatusUpdateDialog(currentStatus: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
-    val statuses = listOf("pendiente", "entregado", "cancelado")
+fun StatusUpdateDialog(currentStatus: OrderStatus, onDismiss: () -> Unit, onConfirm: (OrderStatus) -> Unit) {
+    val statuses = OrderStatus.entries
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -258,7 +269,7 @@ fun StatusUpdateDialog(currentStatus: String, onDismiss: () -> Unit, onConfirm: 
         text = {
             Column(modifier = Modifier.padding(top = 8.dp)) {
                 statuses.forEach { status ->
-                    val isSelected = status.lowercase() == currentStatus.lowercase()
+                    val isSelected = status == currentStatus
                     
                     Surface(
                         onClick = { onConfirm(status) },
@@ -282,7 +293,7 @@ fun StatusUpdateDialog(currentStatus: String, onDismiss: () -> Unit, onConfirm: 
                                 )
                             )
                             Text(
-                                text = status.uppercase(),
+                                text = status.apiValue.uppercase(Locale.getDefault()),
                                 modifier = Modifier.padding(start = 12.dp),
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                 color = if (isSelected) Color(0xFF4F46E5) else Color(0xFF64748B)
@@ -310,11 +321,12 @@ fun OrderDetailPreview() {
         id = 2,
         userId = 1,
         orderDate = "2026-02-25T01:36:33.000Z",
-        status = "pendiente",
+        status = OrderStatus.PENDING,
         totalAmount = 150.50,
         description = "Pedido urgente",
         address = "Av. Siempre Viva 123",
         paymentType = "tarjeta",
+        last4 = "1234",
         products = listOf(
             OrderItem(1, "Sensor Ultrasónico HC-SR04", 1, 50.50),
             OrderItem(8, "Módulo Wi-Fi ESP32", 2, 50.00)
@@ -322,6 +334,7 @@ fun OrderDetailPreview() {
     )
     OrderDetailContent(
         uiState = OrderDetailUiState(order = dummyOrder),
+        isAdmin = true,
         onBackClick = {},
         onStatusChange = {}
     )

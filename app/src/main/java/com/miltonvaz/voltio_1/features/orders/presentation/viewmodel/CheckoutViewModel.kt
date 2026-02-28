@@ -6,6 +6,7 @@ import com.miltonvaz.voltio_1.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.orders.data.manager.CartManager
 import com.miltonvaz.voltio_1.features.orders.domain.entities.Order
 import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderItem
+import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderStatus
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.CreateOrderUseCase
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.AddressInfo
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CardInfo
@@ -66,15 +67,19 @@ class CheckoutViewModel @Inject constructor(
             val totalAmount = cartItems.sumOf { it.product.price * it.quantity }
             val orderDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
             
+            val last4 = _uiState.value.cardInfo.number.takeLast(4).ifBlank { "0000" }
+            val userId = tokenManager.getUserId()
+
             val order = Order(
                 id = 0,
-                userId = 0,
+                userId = userId,
                 orderDate = orderDate,
-                status = "Pendiente",
+                status = OrderStatus.PENDING,
                 totalAmount = totalAmount,
                 description = "Pedido urgente",
                 address = fullAddress,
                 paymentType = "tarjeta",
+                last4 = last4,
                 products = cartItems.map { 
                     OrderItem(
                         productId = it.product.id,
@@ -85,7 +90,7 @@ class CheckoutViewModel @Inject constructor(
                 }
             )
 
-            val result = createOrderUseCase(token, order)
+            val result = createOrderUseCase(token, order, last4)
             
             _uiState.update { currentState ->
                 result.fold(

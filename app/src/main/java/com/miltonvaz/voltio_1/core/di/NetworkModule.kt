@@ -1,6 +1,7 @@
 package com.miltonvaz.voltio_1.core.di
 
 import com.google.gson.Gson
+import com.miltonvaz.voltio_1.core.network.VoltioApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,7 +28,6 @@ object NetworkModule {
     @Provides
     @VoltioWebSocketUrl
     fun provideWebSocketUrl(): String {
-        // Usamos la URL base de tu servidor. Socket.IO se encarga del resto.
         return "https://voltio-ws.ameth.shop"
     }
 
@@ -40,5 +40,11 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideVoltioApi(@VoltioRetrofit retrofit: Retrofit): VoltioApi {
+        return retrofit.create(VoltioApi::class.java)
     }
 }

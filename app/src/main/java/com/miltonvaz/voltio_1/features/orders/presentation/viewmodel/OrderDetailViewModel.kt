@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.network.TokenManager
+import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderStatus
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.GetOrderByIdUseCase
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.ObserveNewOrdersUseCase
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.UpdateOrderStatusUseCase
@@ -40,7 +41,7 @@ class OrderDetailViewModel @Inject constructor(
         viewModelScope.launch {
             observeNewOrdersUseCase().collect { updatedOrder ->
                 if (updatedOrder.id == orderId) {
-                    _uiState.update { it.copy(order = updatedOrder) }
+                    loadOrderDetail(orderId)
                 }
             }
         }
@@ -65,26 +66,24 @@ class OrderDetailViewModel @Inject constructor(
         }
     }
 
-    fun updateStatus(newStatus: String) {
+    fun updateStatus(newStatus: OrderStatus) {
         val currentOrder = _uiState.value.order ?: return
         _uiState.update { it.copy(isUpdating = true) }
         
         viewModelScope.launch {
             val token = tokenManager.getToken() ?: ""
             val updatedOrder = currentOrder.copy(status = newStatus)
-            val result = updateOrderStatusUseCase(token, currentOrder.id, updatedOrder)
+            val result = updateOrderStatusUseCase(token, currentOrder.id, updatedOrder, currentOrder.last4 ?: "")
             
-            _uiState.update { currentState ->
-                result.fold(
-                    onSuccess = {
-                        // Como el UseCase ahora devuelve Result<Unit>, no intentamos asignar el resultado a 'order'
-                        // Confiamos en el WebSocket para la actualización reactiva o actualizamos con el objeto local 'updatedOrder'
-                        currentState.copy(isUpdating = false, order = updatedOrder, error = null)
-                    },
-                    onFailure = { error ->
-                        currentState.copy(isUpdating = false, error = error.message)
-                    }
-                )
+            result.onSuccess {
+                _uiState.update { currentState ->
+                    currentState.copy(isUpdating = false, order = updatedOrder, error = null)
+                }
+                loadOrderDetail(orderId)
+            }.onFailure { error ->
+                _uiState.update { currentState ->
+                    currentState.copy(isUpdating = false, error = error.message)
+                }
             }
         }
     }

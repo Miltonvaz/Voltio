@@ -18,7 +18,10 @@ object Home
 object Orders
 
 @Serializable
-object Stock
+object UserOrders
+
+@Serializable
+data class Stock(val isAdmin: Boolean = false)
 
 @Serializable
 object Inventory
@@ -39,10 +42,13 @@ object CheckoutAddress
 data class CheckoutResult(val isSuccess: Boolean)
 
 @Serializable
-data class OrderDetailArg(val orderId: Int)
+data class OrderDetailArg(val orderId: Int, val isAdmin: Boolean = false)
 
 @Serializable
 data class ProductDetailArg(val id: Int)
+
+@Serializable
+data class ProductDetailClientArg(val id: Int)
 
 @Serializable
 data class ProductFormArg(val id: Int = -1)

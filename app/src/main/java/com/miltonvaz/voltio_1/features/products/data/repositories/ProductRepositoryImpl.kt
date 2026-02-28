@@ -5,11 +5,10 @@ import com.miltonvaz.voltio_1.features.products.data.datasource.remote.mapper.to
 import com.miltonvaz.voltio_1.features.products.data.datasource.remote.model.CreateProductRequest
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.domain.repositories.IProductRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-
 
 class ProductRepositoryImpl @Inject constructor(
     private val api: ProductApiService
@@ -93,7 +92,29 @@ class ProductRepositoryImpl @Inject constructor(
 
         return response.toDomain()
     }
+
     override suspend fun deleteProduct(token: String, id: Int) {
         api.deleteProduct(formatAuth(token), formatCookie(token), id)
+    }
+
+    override suspend fun updateStock(token: String, id: Int, newStock: Int) {
+        val product = getProductById(token, id)
+        
+        val skuPart = product.sku.toRequestBody("text/plain".toMediaTypeOrNull())
+        val nombrePart = product.name.toRequestBody("text/plain".toMediaTypeOrNull())
+        val precioPart = product.price.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val stockPart = newStock.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val catPart = product.categoryId?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        api.updateStockPut(
+            token = formatAuth(token),
+            cookie = formatCookie(token),
+            id = id,
+            sku = skuPart,
+            nombre = nombrePart,
+            precio_venta = precioPart,
+            stock_actual = stockPart,
+            id_categoria = catPart
+        )
     }
 }

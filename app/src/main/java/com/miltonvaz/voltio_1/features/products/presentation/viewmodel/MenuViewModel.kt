@@ -2,8 +2,8 @@ package com.miltonvaz.voltio_1.features.products.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.miltonvaz.voltio_1.core.network.ISocketManager
 import com.miltonvaz.voltio_1.core.network.TokenManager
-import com.miltonvaz.voltio_1.core.network.VoltioSocketManager
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.GetOrdersUseCase
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.ObserveNewOrdersUseCase
 import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductsUseCase
@@ -20,7 +20,7 @@ class MenuViewModel @Inject constructor(
     private val getProductsUseCase: GetProductsUseCase,
     private val getOrdersUseCase: GetOrdersUseCase,
     private val observeNewOrdersUseCase: ObserveNewOrdersUseCase,
-    private val socketManager: VoltioSocketManager,
+    private val socketManager: ISocketManager,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
@@ -66,8 +66,6 @@ class MenuViewModel @Inject constructor(
     private fun observeLiveUpdates() {
         viewModelScope.launch {
             observeNewOrdersUseCase().collect { _ ->
-                // Cuando llega una nueva orden, refrescamos los datos del dashboard
-                // Esto actualizará el contador de pedidos y el stock si hubo ventas
                 loadDashboardData()
             }
         }

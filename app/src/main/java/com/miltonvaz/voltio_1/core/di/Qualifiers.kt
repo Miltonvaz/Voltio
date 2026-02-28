@@ -1,6 +1,6 @@
 package com.miltonvaz.voltio_1.core.di
 
-import jakarta.inject.Qualifier
+import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)

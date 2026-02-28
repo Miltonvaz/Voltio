@@ -13,7 +13,7 @@ import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductByIdUse
 import com.miltonvaz.voltio_1.features.products.domain.usecase.UpdateProductUseCase
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.ProductFormUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

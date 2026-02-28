@@ -1,7 +1,7 @@
 package com.miltonvaz.voltio_1.features.products.domain.usecase
 
 import com.miltonvaz.voltio_1.features.products.domain.repositories.IProductRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class DeleteProductUseCase @Inject constructor(
     private val repository: IProductRepository

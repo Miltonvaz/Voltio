@@ -21,7 +21,15 @@ class TokenManager @Inject constructor(
         return prefs.getString("auth_token", null)
     }
 
+    fun saveUserId(userId: Int) {
+        prefs.edit().putInt("user_id", userId).apply()
+    }
+
+    fun getUserId(): Int {
+        return prefs.getInt("user_id", 1)
+    }
+
     fun clearSession() {
-        prefs.edit().remove("auth_token").apply()
+        prefs.edit().remove("auth_token").remove("user_id").apply()
     }
 }

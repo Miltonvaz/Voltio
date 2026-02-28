@@ -1,7 +1,7 @@
 package com.miltonvaz.voltio_1.features.orders.data.datasource.remote.api
 
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.MessageResponse
-import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.model.OrderDto
+import com.miltonvaz.voltio_1.features.orders.data.datasource.remote.model.*
 import retrofit2.http.*
 
 interface OrderApiService {
@@ -32,21 +32,19 @@ interface OrderApiService {
         @Body order: OrderDto
     ): OrderDto
 
-    // 1. Actualiza la Base de Datos (API Principal)
     @PUT("ordenes/{id}")
     suspend fun updateOrderInDatabase(
         @Header("Authorization") token: String,
         @Header("Cookie") cookie: String,
         @Path("id") id: Int,
-        @Body order: OrderDto
-    ): OrderDto
+        @Body order: OrderUpdateRequestDto
+    ): MessageResponse
 
-    // 2. Dispara la Notificación (Bridge WebSocket/MQTT)
     @PUT("https://voltio-ws.ameth.shop/ordenes/actualizar")
     suspend fun notifyOrderUpdate(
         @Header("Authorization") token: String,
         @Header("Cookie") cookie: String,
-        @Body order: OrderDto
+        @Body update: OrderStatusUpdateDto
     ): MessageResponse
 
     @DELETE("ordenes/{id}")

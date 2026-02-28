@@ -1,6 +1,5 @@
 package com.miltonvaz.voltio_1.features.products.data.datasource.remote
 
-import com.miltonvaz.voltio_1.features.products.data.datasource.remote.model.CreateProductRequest
 import com.miltonvaz.voltio_1.features.products.data.datasource.remote.model.ProductDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -33,7 +32,7 @@ interface ProductApiService {
         @Part("precio_venta") precio_venta: RequestBody,
         @Part("stock_actual") stock_actual: RequestBody,
         @Part("id_categoria") id_categoria: RequestBody?,
-        @Part imagen: MultipartBody.Part? = null // Esto llega como req.file en Express
+        @Part imagen: MultipartBody.Part? = null
     ): ProductDto
 
     @Multipart
@@ -50,10 +49,24 @@ interface ProductApiService {
         @Part("id_categoria") id_categoria: RequestBody?,
         @Part imagen: MultipartBody.Part? = null
     ): ProductDto
+
     @DELETE("products/{id}")
     suspend fun deleteProduct(
         @Header("Authorization") token: String,
         @Header("Cookie") cookie: String,
         @Path("id") id: Int
     ): Response<Unit>
+
+    @Multipart
+    @PUT("products/{id}")
+    suspend fun updateStockPut(
+        @Header("Authorization") token: String,
+        @Header("Cookie") cookie: String,
+        @Path("id") id: Int,
+        @Part("sku") sku: RequestBody,
+        @Part("nombre") nombre: RequestBody,
+        @Part("precio_venta") precio_venta: RequestBody,
+        @Part("stock_actual") stock_actual: RequestBody,
+        @Part("id_categoria") id_categoria: RequestBody?
+    ): ProductDto
 }

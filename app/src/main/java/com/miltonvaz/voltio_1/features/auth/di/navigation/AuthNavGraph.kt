@@ -1,4 +1,4 @@
-package com.miltonvaz.voltio_1.features.auth.presentation.navigation
+package com.miltonvaz.voltio_1.features.auth.di.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -12,7 +12,7 @@ import com.miltonvaz.voltio_1.features.auth.presentation.screens.LoginScreen
 import com.miltonvaz.voltio_1.features.auth.presentation.screens.register.RegisterScreen
 import javax.inject.Inject
 
-class LoginNavGraph : FeatureNavGraph {
+class AuthNavGraph @Inject constructor() : FeatureNavGraph {
     override fun registerGraph(
         navGraphBuilder: NavGraphBuilder,
         navController: NavHostController
@@ -21,8 +21,9 @@ class LoginNavGraph : FeatureNavGraph {
             LoginScreen(
                 onBackClick = { navController.popBackStack() },
                 onRegisterClick = { navController.navigate(Register) },
-                onLoginSuccess = {
-                    navController.navigate(Home) {
+                onLoginSuccess = { user ->
+                    val destination = if (user?.role == "admin") AdminMenu else UserHome
+                    navController.navigate(destination) {
                         popUpTo(Login) { inclusive = true }
                     }
                 }
@@ -39,8 +40,5 @@ class LoginNavGraph : FeatureNavGraph {
                 }
             )
         }
-
-        // Placeholder for future User Home
-        navGraphBuilder.composable<UserHome> { /* TODO: User View */ }
     }
 }
