@@ -19,5 +19,8 @@ interface IProductRepository {
         request: CreateProductRequest,
         imageBytes: ByteArray?
     ): Product
+    
     suspend fun deleteProduct(token: String, id: Int)
+    
+    suspend fun updateStock(token: String, id: Int, newStock: Int)
 }

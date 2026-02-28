@@ -2,10 +2,14 @@ package com.miltonvaz.voltio_1.core.network
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.core.content.edit
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-
-class TokenManager(context: Context) {
+@Singleton
+class TokenManager @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences("voltio_prefs", Context.MODE_PRIVATE)
 
@@ -17,7 +21,15 @@ class TokenManager(context: Context) {
         return prefs.getString("auth_token", null)
     }
 
+    fun saveUserId(userId: Int) {
+        prefs.edit().putInt("user_id", userId).apply()
+    }
+
+    fun getUserId(): Int {
+        return prefs.getInt("user_id", 1)
+    }
+
     fun clearSession() {
-        prefs.edit().remove("auth_token").apply()
+        prefs.edit().remove("auth_token").remove("user_id").apply()
     }
 }

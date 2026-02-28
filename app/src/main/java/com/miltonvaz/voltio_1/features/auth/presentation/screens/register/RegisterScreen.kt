@@ -15,8 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.miltonvaz.voltio_1.R
 import com.miltonvaz.voltio_1.core.ui.components.CustomTextField
 import com.miltonvaz.voltio_1.core.ui.components.PrimaryButton
@@ -25,17 +25,15 @@ import com.miltonvaz.voltio_1.core.ui.components.TextDivider
 import com.miltonvaz.voltio_1.core.ui.theme.bodyFontFamily
 import com.miltonvaz.voltio_1.core.ui.theme.displayFontFamily
 import com.miltonvaz.voltio_1.features.auth.presentation.components.LoginTopBar
-import com.miltonvaz.voltio_1.features.auth.presentation.viewmodel.AuthViewModelFactory
 import com.miltonvaz.voltio_1.features.auth.presentation.viewmodel.RegisterViewModel
 
 @Composable
 fun RegisterScreen(
-    factory: AuthViewModelFactory,
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onRegisterSuccess: () -> Unit = {}
 ) {
-    val viewModel: RegisterViewModel = viewModel(factory = factory)
+    val viewModel: RegisterViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     var name by remember { mutableStateOf("") }

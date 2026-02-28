@@ -14,7 +14,7 @@ val provider = GoogleFont.Provider(
 
 val bodyFontFamily = FontFamily(
     Font(
-        googleFont = GoogleFont("Agdasima"),
+        googleFont = GoogleFont("Inter"),
         fontProvider = provider,
     )
 )
@@ -26,7 +26,6 @@ val displayFontFamily = FontFamily(
     )
 )
 
-// Default Material 3 typography values
 val baseline = Typography()
 
 val AppTypography = Typography(

@@ -1,14 +1,16 @@
 package com.miltonvaz.voltio_1.features.auth.data.repositories
 
-import com.ameth.voltio.features.login.data.datasource.remote.model.AuthResponse
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.api.AuthApiService
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthRequest
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthResponse
 import com.miltonvaz.voltio_1.core.network.VoltioApi
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRequest
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.MessageResponse
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.ProfileResponse
 import com.miltonvaz.voltio_1.features.auth.domain.repositories.IAuthRepository
+import javax.inject.Inject
 
-class AuthRepositoryImpl(
+class AuthRepositoryImpl @Inject constructor(
     private val api: VoltioApi
 ) : IAuthRepository {
 

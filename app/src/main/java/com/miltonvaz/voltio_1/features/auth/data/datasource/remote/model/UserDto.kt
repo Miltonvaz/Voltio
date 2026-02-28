@@ -1,5 +1,6 @@
 package com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model
 
+import com.google.gson.annotations.SerializedName
 
 data class UserDto(
     val id: Int,
@@ -19,5 +20,5 @@ data class ProfileResponse(
 )
 
 data class MessageResponse(
-    val message: String
+    @SerializedName("mensaje") val message: String
 )

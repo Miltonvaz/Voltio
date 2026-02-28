@@ -1,17 +1,23 @@
 package com.miltonvaz.voltio_1.features.products.presentation.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.network.TokenManager
+
 import com.miltonvaz.voltio_1.features.products.domain.usecase.DeleteProductUseCase
 import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductsUseCase
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.HomeUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val getProductsUseCase: GetProductsUseCase,
     private val deleteProductUseCase: DeleteProductUseCase,
     private val tokenManager: TokenManager

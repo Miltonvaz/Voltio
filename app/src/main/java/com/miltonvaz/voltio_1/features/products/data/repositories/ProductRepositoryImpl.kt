@@ -5,11 +5,12 @@ import com.miltonvaz.voltio_1.features.products.data.datasource.remote.mapper.to
 import com.miltonvaz.voltio_1.features.products.data.datasource.remote.model.CreateProductRequest
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.domain.repositories.IProductRepository
+import javax.inject.Inject
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-class ProductRepositoryImpl(
+class ProductRepositoryImpl @Inject constructor(
     private val api: ProductApiService
 ) : IProductRepository {
 
@@ -31,22 +32,15 @@ class ProductRepositoryImpl(
         request: CreateProductRequest,
         imageBytes: ByteArray?
     ): Product {
-        // Usamos el operador elvis (?: "") para asegurar que nunca sea nulo al convertir
         val skuPart = request.sku.toRequestBody("text/plain".toMediaTypeOrNull())
         val nombrePart = request.nombre.toRequestBody("text/plain".toMediaTypeOrNull())
-
-        // Solución al error: Si es nulo, enviamos un string vacío o un valor por defecto
         val descPart = (request.descripcion ?: "").toRequestBody("text/plain".toMediaTypeOrNull())
-
         val precioPart = request.precio_venta.toString().toRequestBody("text/plain".toMediaTypeOrNull())
         val stockPart = request.stock_actual.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-
-        // Solución al error para id_categoria
         val catPart = (request.id_categoria?.toString() ?: "0").toRequestBody("text/plain".toMediaTypeOrNull())
 
         val imagePart = imageBytes?.let {
             val requestFile = it.toRequestBody("image/jpeg".toMediaTypeOrNull())
-            // "image" es el campo que tu backend de Express busca en req.file
             MultipartBody.Part.createFormData("imagen", "product_${request.sku}.jpg", requestFile)
         }
 
@@ -98,7 +92,29 @@ class ProductRepositoryImpl(
 
         return response.toDomain()
     }
+
     override suspend fun deleteProduct(token: String, id: Int) {
         api.deleteProduct(formatAuth(token), formatCookie(token), id)
+    }
+
+    override suspend fun updateStock(token: String, id: Int, newStock: Int) {
+        val product = getProductById(token, id)
+        
+        val skuPart = product.sku.toRequestBody("text/plain".toMediaTypeOrNull())
+        val nombrePart = product.name.toRequestBody("text/plain".toMediaTypeOrNull())
+        val precioPart = product.price.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val stockPart = newStock.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val catPart = product.categoryId?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        api.updateStockPut(
+            token = formatAuth(token),
+            cookie = formatCookie(token),
+            id = id,
+            sku = skuPart,
+            nombre = nombrePart,
+            precio_venta = precioPart,
+            stock_actual = stockPart,
+            id_categoria = catPart
+        )
     }
 }
