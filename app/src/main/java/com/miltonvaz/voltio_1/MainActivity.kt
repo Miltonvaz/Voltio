@@ -1,9 +1,9 @@
 package com.miltonvaz.voltio_1
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.fragment.app.FragmentActivity
 import com.example.compose.AppTheme
 import com.miltonvaz.voltio_1.core.navigation.NavigationWrapper
 import com.miltonvaz.voltio_1.features.auth.di.navigation.AuthNavGraph
@@ -13,7 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     @Inject
     lateinit var productNavGraph: ProductNavGraph

@@ -94,6 +94,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.socket.io.client)
+    implementation(libs.androidx.biometric)
     ksp(libs.hilt.compiler)
 
 
