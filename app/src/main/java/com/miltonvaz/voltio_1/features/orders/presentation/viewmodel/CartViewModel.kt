@@ -2,8 +2,8 @@ package com.miltonvaz.voltio_1.features.orders.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.miltonvaz.voltio_1.features.orders.data.manager.CartManager
-import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CartItem
+import com.miltonvaz.voltio_1.features.orders.domain.entities.CartItem
+import com.miltonvaz.voltio_1.features.orders.domain.usecase.cart.*
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CartUiState
 import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +15,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val cartManager: CartManager
+    private val getCartItemsUseCase: GetCartItemsUseCase,
+    private val addToCartUseCase: AddToCartUseCase,
+    private val removeFromCartUseCase: RemoveFromCartUseCase,
+    private val updateCartQuantityUseCase: UpdateCartQuantityUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartUiState())
@@ -27,29 +30,43 @@ class CartViewModel @Inject constructor(
 
     private fun observeCart() {
         viewModelScope.launch {
-            cartManager.items.collect { items ->
+            getCartItemsUseCase().collect { items ->
                 _uiState.update { it.copy(cartItems = items) }
             }
         }
     }
 
     fun addItem(product: Product, quantity: Int) {
-        cartManager.addItem(CartItem(product, quantity))
+        viewModelScope.launch {
+            addToCartUseCase(CartItem(product, quantity))
+        }
     }
 
     fun removeItem(productId: Int) {
-        cartManager.removeItem(productId)
+        viewModelScope.launch {
+            removeFromCartUseCase(productId)
+        }
     }
 
     fun increaseQuantity(productId: Int) {
-        cartManager.updateQuantity(productId, 1)
+        viewModelScope.launch {
+            val currentItem = _uiState.value.cartItems.find { it.product.id == productId }
+            if (currentItem != null) {
+                updateCartQuantityUseCase(productId, currentItem.quantity + 1)
+            }
+        }
     }
 
     fun decreaseQuantity(productId: Int) {
-        cartManager.updateQuantity(productId, -1)
+        viewModelScope.launch {
+            val currentItem = _uiState.value.cartItems.find { it.product.id == productId }
+            if (currentItem != null && currentItem.quantity > 1) {
+                updateCartQuantityUseCase(productId, currentItem.quantity - 1)
+            }
+        }
     }
 
     fun clearCart() {
-        cartManager.clear()
+        // Implement clear if needed via a UseCase
     }
 }

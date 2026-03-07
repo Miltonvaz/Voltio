@@ -3,17 +3,19 @@ package com.miltonvaz.voltio_1.features.orders.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.network.TokenManager
-import com.miltonvaz.voltio_1.features.orders.data.manager.CartManager
 import com.miltonvaz.voltio_1.features.orders.domain.entities.Order
 import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderItem
 import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderStatus
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.CreateOrderUseCase
+import com.miltonvaz.voltio_1.features.orders.domain.usecase.cart.ClearCartUseCase
+import com.miltonvaz.voltio_1.features.orders.domain.usecase.cart.GetCartItemsUseCase
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.AddressInfo
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CardInfo
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CheckoutUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -23,7 +25,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CheckoutViewModel @Inject constructor(
-    private val cartManager: CartManager,
+    private val getCartItemsUseCase: GetCartItemsUseCase,
+    private val clearCartUseCase: ClearCartUseCase,
     private val createOrderUseCase: CreateOrderUseCase,
     private val tokenManager: TokenManager
 ) : ViewModel() {
@@ -55,7 +58,8 @@ class CheckoutViewModel @Inject constructor(
         
         viewModelScope.launch {
             val token = tokenManager.getToken() ?: ""
-            val cartItems = cartManager.items.value
+            val cartItems = getCartItemsUseCase().first()
+            
             if (cartItems.isEmpty()) {
                 _uiState.update { it.copy(isLoading = false, error = "El carrito está vacío") }
                 return@launch
@@ -95,7 +99,7 @@ class CheckoutViewModel @Inject constructor(
             _uiState.update { currentState ->
                 result.fold(
                     onSuccess = {
-                        cartManager.clear()
+                        viewModelScope.launch { clearCartUseCase() }
                         currentState.copy(isLoading = false, orderPlacedSuccessfully = true)
                     },
                     onFailure = { error ->
