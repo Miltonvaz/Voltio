@@ -2,6 +2,7 @@ package com.miltonvaz.voltio_1.features.orders.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.miltonvaz.voltio_1.core.hardware.domain.VibrationManager
 import com.miltonvaz.voltio_1.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.GetOrdersUseCase
 import com.miltonvaz.voltio_1.features.orders.domain.usecase.ObserveNewOrdersUseCase
@@ -17,7 +18,8 @@ import javax.inject.Inject
 class AdminOrdersViewModel @Inject constructor(
     private val getOrdersUseCase: GetOrdersUseCase,
     private val observeNewOrdersUseCase: ObserveNewOrdersUseCase,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val vibrationManager: VibrationManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OrdersUiState())
@@ -49,12 +51,23 @@ class AdminOrdersViewModel @Inject constructor(
     private fun observeLiveOrders() {
         viewModelScope.launch {
             observeNewOrdersUseCase().collect { newOrder ->
+                var isNewOrder = false
+                
                 _uiState.update { currentState ->
                     val currentList = currentState.orders.toMutableList()
                     val index = currentList.indexOfFirst { it.id == newOrder.id }
-                    if (index != -1) currentList[index] = newOrder
-                    else currentList.add(0, newOrder)
+                    
+                    if (index != -1) {
+                        currentList[index] = newOrder
+                    } else {
+                        isNewOrder = true
+                        currentList.add(0, newOrder)
+                    }
                     currentState.copy(orders = currentList)
+                }
+
+                if (isNewOrder) {
+                    vibrationManager.vibrate(500)
                 }
             }
         }

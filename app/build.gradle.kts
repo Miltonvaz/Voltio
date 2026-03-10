@@ -63,9 +63,9 @@ secrets {
     defaultPropertiesFileName = "local.defaults.properties"
     ignoreList.add("sdk.dir")
 }
-
 ksp {
-    arg("hilt.disableModulesHaveInstallInCheck", "true")
+    arg("room.incremental", "false")
+    arg("room.generateKotlin", "false")
 }
 
 kotlin {
@@ -94,6 +94,13 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.socket.io.client)
+    implementation(libs.androidx.biometric)
+    
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     ksp(libs.hilt.compiler)
 
 

@@ -1,19 +1,26 @@
 package com.miltonvaz.voltio_1.features.auth.presentation.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miltonvaz.voltio_1.core.ui.components.CustomTextField
@@ -34,6 +41,7 @@ fun LoginScreen(
 ) {
     val viewModel: LoginViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -53,12 +61,11 @@ fun LoginScreen(
                 .padding(paddingValues)
                 .background(Color(0xFFF8FAFC))
         ) {
-            // Header unificado tal cual la imagen
             AdminHeader(
                 title = "Bienvenido",
                 subtitle = "Inicia sesión para continuar",
-                onBackClick = null, // No hay atrás en el login principal
-                showProfile = false // No hay perfil antes de loguear
+                onBackClick = null,
+                showProfile = false
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -79,21 +86,50 @@ fun LoginScreen(
                         .padding(top = 32.dp, bottom = 40.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(
-                        text = "¡Hola de nuevo!",
-                        fontFamily = displayFontFamily,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A1C2E)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "¡Hola de nuevo!",
+                                fontFamily = displayFontFamily,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1A1C2E)
+                            )
 
-                    Text(
-                        text = "Voltio - Potencia electrónica",
-                        fontFamily = displayFontFamily,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color(0xFF616161),
-                    )
+                            Text(
+                                text = "Voltio - Potencia electrónica",
+                                fontFamily = displayFontFamily,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color(0xFF616161),
+                            )
+                        }
+
+                        if (viewModel.canFastLogin()) {
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFE0E7FF))
+                                    .clickable {
+                                        val activity = context as? FragmentActivity
+                                        if (activity != null) viewModel.fastAdminLogin(activity)
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Fingerprint,
+                                    contentDescription = "Acceso Rápido",
+                                    tint = Color(0xFF4F46E5),
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
@@ -118,7 +154,10 @@ fun LoginScreen(
 
                     PrimaryButton(
                         text = "INGRESAR",
-                        onClick = { viewModel.login(email, password) },
+                        onClick = { 
+                            val activity = context as? FragmentActivity
+                            viewModel.login(email, password, activity) 
+                        },
                         enabled = !uiState.isLoading && email.isNotBlank() && password.isNotBlank()
                     )
 

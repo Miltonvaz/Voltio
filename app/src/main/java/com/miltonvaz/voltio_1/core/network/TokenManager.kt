@@ -29,7 +29,25 @@ class TokenManager @Inject constructor(
         return prefs.getInt("user_id", 1)
     }
 
+    fun saveAdminCredentials(email: String, pass: String) {
+        prefs.edit()
+            .putString("admin_email", email)
+            .putString("admin_pass", pass)
+            .apply()
+    }
+
+    fun getAdminCredentials(): Pair<String?, String?> {
+        val email = prefs.getString("admin_email", null)
+        val pass = prefs.getString("admin_pass", null)
+        return email to pass
+    }
+
     fun clearSession() {
-        prefs.edit().remove("auth_token").remove("user_id").apply()
+        prefs.edit()
+            .remove("auth_token")
+            .remove("user_id")
+            .remove("admin_email")
+            .remove("admin_pass")
+            .apply()
     }
 }

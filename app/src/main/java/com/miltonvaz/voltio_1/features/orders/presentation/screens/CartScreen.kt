@@ -26,7 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CartItem
+import com.miltonvaz.voltio_1.features.orders.domain.entities.CartItem
 import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.CartViewModel
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarClient
