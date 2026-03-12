@@ -14,16 +14,13 @@ class ProductRepositoryImpl @Inject constructor(
     private val api: ProductApiService
 ) : IProductRepository {
 
-    private fun formatAuth(token: String) = "Bearer $token"
-    private fun formatCookie(token: String) = "access_token=$token"
-
     override suspend fun getProducts(token: String): List<Product> {
-        val response = api.getProducts(formatAuth(token), formatCookie(token))
+        val response = api.getProducts()
         return response.map { it.toDomain() }
     }
 
     override suspend fun getProductById(token: String, id: Int): Product {
-        val response = api.getProductById(formatAuth(token), formatCookie(token), id)
+        val response = api.getProductById(id)
         return response.toDomain()
     }
 
@@ -45,8 +42,6 @@ class ProductRepositoryImpl @Inject constructor(
         }
 
         val response = api.createProduct(
-            token = formatAuth(token),
-            cookie = formatCookie(token),
             sku = skuPart,
             nombre = nombrePart,
             descripcion = descPart,
@@ -78,8 +73,6 @@ class ProductRepositoryImpl @Inject constructor(
         }
 
         val response = api.updateProduct(
-            token = formatAuth(token),
-            cookie = formatCookie(token),
             id = id,
             sku = skuPart,
             nombre = nombrePart,
@@ -94,12 +87,12 @@ class ProductRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteProduct(token: String, id: Int) {
-        api.deleteProduct(formatAuth(token), formatCookie(token), id)
+        api.deleteProduct(id)
     }
 
     override suspend fun updateStock(token: String, id: Int, newStock: Int) {
         val product = getProductById(token, id)
-        
+
         val skuPart = product.sku.toRequestBody("text/plain".toMediaTypeOrNull())
         val nombrePart = product.name.toRequestBody("text/plain".toMediaTypeOrNull())
         val precioPart = product.price.toString().toRequestBody("text/plain".toMediaTypeOrNull())
@@ -107,8 +100,6 @@ class ProductRepositoryImpl @Inject constructor(
         val catPart = product.categoryId?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
 
         api.updateStockPut(
-            token = formatAuth(token),
-            cookie = formatCookie(token),
             id = id,
             sku = skuPart,
             nombre = nombrePart,

@@ -36,7 +36,7 @@ import java.util.Locale
 fun CartScreen(
     navController: NavHostController,
     onCheckoutClick: () -> Unit = {},
-    viewModel: CartViewModel = hiltViewModel()
+    viewModel: CartViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     

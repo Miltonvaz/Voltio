@@ -25,7 +25,8 @@ import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 @Composable
 fun ProductCard(
     product: Product,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onAddToCart: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -108,7 +109,7 @@ fun ProductCard(
                 )
                 
                 IconButton(
-                    onClick = { },
+                    onClick = { onAddToCart() },
                     modifier = Modifier
                         .size(32.dp)
                         .background(Color(0xFFE0E7FF), CircleShape)

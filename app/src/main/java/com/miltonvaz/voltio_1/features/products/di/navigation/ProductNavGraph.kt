@@ -2,12 +2,13 @@ package com.miltonvaz.voltio_1.features.products.di.navigation
 
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.miltonvaz.voltio_1.core.navigation.*
+import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.CartViewModel
 import com.miltonvaz.voltio_1.features.products.presentation.screens.*
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewModel
 import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.ProductFormViewModel
@@ -51,9 +52,11 @@ class ProductNavGraph @Inject constructor() : FeatureNavGraph {
 
         navGraphBuilder.composable<UserHome> {
             val viewModel: HomeViewModel = hiltViewModel()
+            val cartViewModel: CartViewModel = hiltViewModel()
             HomeScreenClient(
                 navController = navController,
                 viewModel = viewModel,
+                cartViewModel = cartViewModel,
                 onProductClick = { id -> navController.navigate(ProductDetailClientArg(id = id)) },
                 onCartClick = { navController.navigate(Cart) }
             )
@@ -73,7 +76,6 @@ class ProductNavGraph @Inject constructor() : FeatureNavGraph {
 
         navGraphBuilder.composable<ProductFormArg> {
             val viewModel: ProductFormViewModel = hiltViewModel()
-
             AddProductScreen(
                 viewModel = viewModel,
                 onNavigateBack = {

@@ -89,6 +89,7 @@ class LoginViewModel @Inject constructor(
     private fun finalizeLogin(token: String, user: com.miltonvaz.voltio_1.features.auth.domain.entities.Auth) {
         viewModelScope.launch {
             sessionManager.saveToken(token)
+            sessionManager.saveUserId(user.id)
             _uiState.update {
                 it.copy(
                     isLoading = false,

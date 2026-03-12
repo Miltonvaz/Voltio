@@ -10,6 +10,7 @@ import androidx.navigation.toRoute
 import com.miltonvaz.voltio_1.core.navigation.*
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.*
 import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.AdminOrdersViewModel
+import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.CartViewModel
 import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.UserOrdersViewModel
 import javax.inject.Inject
 
@@ -19,17 +20,17 @@ class OrdersNavGraph @Inject constructor() : FeatureNavGraph {
         navController: NavHostController
     ) {
         navGraphBuilder.composable<Cart> {
+            val cartViewModel: CartViewModel = hiltViewModel()
             CartScreen(
                 navController = navController,
-                onCheckoutClick = { navController.navigate(Checkout) }
+                viewModel = cartViewModel,
+                onCheckoutClick = { navController.navigate(Directions) }
             )
         }
 
-        // Vista para el Admin: Ve todas las ordenes
         navGraphBuilder.composable<Orders> {
             val viewModel: AdminOrdersViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            
             OrdersScreen(
                 navController = navController,
                 uiState = uiState,
@@ -40,11 +41,9 @@ class OrdersNavGraph @Inject constructor() : FeatureNavGraph {
             )
         }
 
-        // Vista para el Cliente: Ve solo sus ordenes
         navGraphBuilder.composable<UserOrders> {
             val viewModel: UserOrdersViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            
             OrdersScreen(
                 navController = navController,
                 uiState = uiState,

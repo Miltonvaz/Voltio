@@ -9,23 +9,16 @@ import retrofit2.http.*
 interface ProductApiService {
 
     @GET("products")
-    suspend fun getProducts(
-        @Header("Authorization") token: String,
-        @Header("Cookie") cookie: String
-    ): List<ProductDto>
+    suspend fun getProducts(): List<ProductDto>
 
     @GET("products/{id}")
     suspend fun getProductById(
-        @Header("Authorization") token: String,
-        @Header("Cookie") cookie: String,
         @Path("id") id: Int
     ): ProductDto
 
     @Multipart
     @POST("products")
     suspend fun createProduct(
-        @Header("Authorization") token: String,
-        @Header("Cookie") cookie: String,
         @Part("sku") sku: RequestBody,
         @Part("nombre") nombre: RequestBody,
         @Part("descripcion") descripcion: RequestBody?,
@@ -38,8 +31,6 @@ interface ProductApiService {
     @Multipart
     @PUT("products/{id}")
     suspend fun updateProduct(
-        @Header("Authorization") token: String,
-        @Header("Cookie") cookie: String,
         @Path("id") id: Int,
         @Part("sku") sku: RequestBody,
         @Part("nombre") nombre: RequestBody,
@@ -52,16 +43,12 @@ interface ProductApiService {
 
     @DELETE("products/{id}")
     suspend fun deleteProduct(
-        @Header("Authorization") token: String,
-        @Header("Cookie") cookie: String,
         @Path("id") id: Int
     ): Response<Unit>
 
     @Multipart
     @PUT("products/{id}")
     suspend fun updateStockPut(
-        @Header("Authorization") token: String,
-        @Header("Cookie") cookie: String,
         @Path("id") id: Int,
         @Part("sku") sku: RequestBody,
         @Part("nombre") nombre: RequestBody,

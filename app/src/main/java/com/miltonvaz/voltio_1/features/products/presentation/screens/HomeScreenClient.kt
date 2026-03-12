@@ -1,6 +1,5 @@
 package com.miltonvaz.voltio_1.features.products.presentation.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -13,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.CartViewModel
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.components.BannerCard
 import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarClient
@@ -25,6 +25,7 @@ import com.miltonvaz.voltio_1.features.products.presentation.viewmodel.HomeViewM
 fun HomeScreenClient(
     navController: NavHostController,
     viewModel: HomeViewModel,
+    cartViewModel: CartViewModel,
     onCartClick: () -> Unit = {},
     onProductClick: (Int) -> Unit = {}
 ) {
@@ -97,7 +98,12 @@ fun HomeScreenClient(
 
             if (uiState.isLoading) {
                 item {
-                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator(color = Color(0xFF4F46E5))
                     }
                 }
@@ -116,7 +122,8 @@ fun HomeScreenClient(
                                     Box(modifier = Modifier.weight(1f)) {
                                         ProductCard(
                                             product = product,
-                                            onClick = { onProductClick(product.id) }
+                                            onClick = { onProductClick(product.id) },
+                                            onAddToCart = { cartViewModel.addItem(product, 1) }
                                         )
                                     }
                                 }

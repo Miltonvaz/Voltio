@@ -2,6 +2,7 @@ package com.miltonvaz.voltio_1.core.di
 
 import com.google.gson.Gson
 import com.miltonvaz.voltio_1.core.network.VoltioApi
+import com.miltonvaz.voltio_1.core.network.VoltioAuthCookieJar
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,8 +18,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder().build()
+    fun provideOkHttpClient(cookieJar: VoltioAuthCookieJar): OkHttpClient {
+        return OkHttpClient.Builder()
+            .cookieJar(cookieJar)
+            .build()
     }
 
     @Provides
@@ -27,9 +30,7 @@ object NetworkModule {
 
     @Provides
     @VoltioWebSocketUrl
-    fun provideWebSocketUrl(): String {
-        return "https://voltio-ws.ameth.shop"
-    }
+    fun provideWebSocketUrl(): String = "https://voltio-ws.ameth.shop"
 
     @Provides
     @Singleton
