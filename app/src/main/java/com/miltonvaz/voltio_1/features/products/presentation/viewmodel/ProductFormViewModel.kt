@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.miltonvaz.voltio_1.core.hardware.domain.CameraManager
 import com.miltonvaz.voltio_1.core.network.TokenManager
 import com.miltonvaz.voltio_1.features.products.data.datasource.remote.model.CreateProductRequest
 import com.miltonvaz.voltio_1.features.products.domain.usecase.CreateProductUseCase
@@ -13,12 +14,12 @@ import com.miltonvaz.voltio_1.features.products.domain.usecase.GetProductByIdUse
 import com.miltonvaz.voltio_1.features.products.domain.usecase.UpdateProductUseCase
 import com.miltonvaz.voltio_1.features.products.presentation.screens.UiState.ProductFormUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.toString
+import javax.inject.Inject
+import android.net.Uri
 
 @HiltViewModel
 class ProductFormViewModel @Inject constructor(
@@ -26,7 +27,8 @@ class ProductFormViewModel @Inject constructor(
     private val createProductUseCase: CreateProductUseCase,
     private val updateProductUseCase: UpdateProductUseCase,
     private val getProductByIdUseCase: GetProductByIdUseCase,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val cameraManager: CameraManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProductFormUiState())
@@ -44,10 +46,32 @@ class ProductFormViewModel @Inject constructor(
     var imageName by mutableStateOf("Subir imagen del producto")
     var selectedImageBytes by mutableStateOf<ByteArray?>(null)
 
+    private var pendingCameraUri: Uri? = null
+
     init {
         if (productId != -1) {
             loadProductForEdit(productId)
         }
+    }
+
+    fun createCameraUri(): Uri {
+        val uri = cameraManager.createTempImageUri()
+        pendingCameraUri = uri
+        return uri
+    }
+
+    fun onCameraResult(success: Boolean) {
+        if (success) {
+            pendingCameraUri?.let { uri ->
+                selectedImageBytes = cameraManager.readImageBytes(uri)
+                imageName = "¡Foto tomada!"
+            }
+        }
+    }
+
+    fun onGalleryResult(uri: Uri) {
+        selectedImageBytes = cameraManager.readImageBytes(uri)
+        imageName = "¡Imagen cargada!"
     }
 
     private fun loadProductForEdit(id: Int) {
