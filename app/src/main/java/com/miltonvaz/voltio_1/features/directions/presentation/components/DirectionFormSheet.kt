@@ -10,8 +10,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.miltonvaz.voltio_1.core.ui.components.CustomTextField
-import com.miltonvaz.voltio_1.core.ui.components.PrimaryButton
 import com.miltonvaz.voltio_1.core.ui.theme.displayFontFamily
 import com.miltonvaz.voltio_1.features.directions.data.datasource.remote.model.DirectionRequest
 import com.miltonvaz.voltio_1.features.directions.domain.entities.Direction
@@ -26,6 +24,17 @@ fun DirectionFormSheet(
     var alias by remember { mutableStateOf(directionToEdit?.alias ?: "") }
     var direccion by remember { mutableStateOf(directionToEdit?.direccion ?: "") }
     var esPredeterminada by remember { mutableStateOf(directionToEdit?.es_predeterminada ?: false) }
+
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = Color(0xFF1E293B),
+        unfocusedTextColor = Color(0xFF1E293B),
+        focusedLabelColor = Color(0xFF455E91),
+        unfocusedLabelColor = Color(0xFF64748B),
+        focusedContainerColor = Color.White,
+        unfocusedContainerColor = Color.White,
+        focusedBorderColor = Color(0xFF455E91),
+        unfocusedBorderColor = Color(0xFFE2E8F0)
+    )
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -53,18 +62,30 @@ fun DirectionFormSheet(
                 color = Color(0xFF616161)
             )
             Spacer(modifier = Modifier.height(24.dp))
-            CustomTextField(
+            
+            OutlinedTextField(
                 value = alias,
                 onValueChange = { alias = it },
-                label = "Alias (ej. Casa, Trabajo)"
+                label = { Text("Alias (ej. Casa, Trabajo)") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = textFieldColors
             )
+            
             Spacer(modifier = Modifier.height(12.dp))
-            CustomTextField(
+            
+            OutlinedTextField(
                 value = direccion,
                 onValueChange = { direccion = it },
-                label = "Dirección completa"
+                label = { Text("Dirección completa") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = textFieldColors,
+                minLines = 2
             )
+            
             Spacer(modifier = Modifier.height(16.dp))
+            
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -72,7 +93,7 @@ fun DirectionFormSheet(
                 Checkbox(
                     checked = esPredeterminada,
                     onCheckedChange = { esPredeterminada = it },
-                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFF4F46E5))
+                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFF455E91))
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -83,8 +104,8 @@ fun DirectionFormSheet(
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
-            PrimaryButton(
-                text = if (directionToEdit != null) "GUARDAR CAMBIOS" else "AGREGAR DIRECCIÓN",
+            
+            Button(
                 onClick = {
                     onSave(
                         DirectionRequest(
@@ -95,8 +116,19 @@ fun DirectionFormSheet(
                         )
                     )
                 },
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFA0BBF8),
+                    contentColor = Color(0xFF1A1C2E)
+                ),
                 enabled = direccion.isNotBlank()
-            )
+            ) {
+                Text(
+                    text = if (directionToEdit != null) "GUARDAR CAMBIOS" else "AGREGAR DIRECCIÓN",
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

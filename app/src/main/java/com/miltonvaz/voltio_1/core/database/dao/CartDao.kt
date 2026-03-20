@@ -5,7 +5,7 @@ import com.miltonvaz.voltio_1.core.database.entities.CartEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface CartDao {
+interface   CartDao {
     @Query("SELECT * FROM cart_table")
     fun getAllCartItems(): Flow<List<CartEntity>>
 

@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,7 +28,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.miltonvaz.voltio_1.features.orders.domain.entities.CartItem
+import com.miltonvaz.voltio_1.features.orders.presentation.screens.UiState.CartUiState
 import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.CartViewModel
+import com.miltonvaz.voltio_1.features.products.domain.entities.Product
 import com.miltonvaz.voltio_1.features.products.presentation.components.AdminHeader
 import com.miltonvaz.voltio_1.features.products.presentation.components.BottomNavBarClient
 import java.util.Locale
@@ -36,14 +39,35 @@ import java.util.Locale
 fun CartScreen(
     navController: NavHostController,
     onCheckoutClick: () -> Unit = {},
-    viewModel: CartViewModel
+    viewModel: CartViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
-    Scaffold(
+    CartScreenContent(
+        uiState = uiState,
+        onBackClick = { navController.popBackStack() },
+        onCheckoutClick = onCheckoutClick,
+        onIncrease = { viewModel.increaseQuantity(it) },
+        onDecrease = { viewModel.decreaseQuantity(it) },
+        onRemove = { viewModel.removeItem(it) },
         bottomBar = {
             BottomNavBarClient(navController = navController, selectedIndex = 2)
-        },
+        }
+    )
+}
+
+@Composable
+fun CartScreenContent(
+    uiState: CartUiState,
+    onBackClick: () -> Unit,
+    onCheckoutClick: () -> Unit,
+    onIncrease: (Int) -> Unit,
+    onDecrease: (Int) -> Unit,
+    onRemove: (Int) -> Unit,
+    bottomBar: @Composable () -> Unit = {}
+) {
+    Scaffold(
+        bottomBar = bottomBar,
         containerColor = Color(0xFFF8FAFC)
     ) { paddingValues ->
         Column(
@@ -54,8 +78,8 @@ fun CartScreen(
             AdminHeader(
                 title = "Tu Carrito",
                 subtitle = "${uiState.cartItems.size} Productos seleccionados",
-                onBackClick = { navController.popBackStack() },
-                showCart = true,
+                onBackClick = onBackClick,
+                showCart = false,
                 showProfile = true
             )
 
@@ -71,9 +95,9 @@ fun CartScreen(
                         items(uiState.cartItems) { cartItem ->
                             CartItemCard(
                                 cartItem = cartItem,
-                                onIncrease = { viewModel.increaseQuantity(cartItem.product.id) },
-                                onDecrease = { viewModel.decreaseQuantity(cartItem.product.id) },
-                                onRemove = { viewModel.removeItem(cartItem.product.id) }
+                                onIncrease = { onIncrease(cartItem.product.id) },
+                                onDecrease = { onDecrease(cartItem.product.id) },
+                                onRemove = { onRemove(cartItem.product.id) }
                             )
                         }
                     }
@@ -127,7 +151,7 @@ fun CartItemCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("$${String.format(Locale.US, "%.2f", cartItem.product.price)}", fontWeight = FontWeight.ExtraBold, color = Color(0xFF4F46E5), fontSize = 16.sp)
+                    Text("$${String.format(Locale.US, "%.2f", cartItem.product.price)}", fontWeight = FontWeight.ExtraBold, color = Color(0xFF455E91), fontSize = 16.sp)
                     
                     Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFFF1F5F9)) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 4.dp)) {
@@ -136,7 +160,7 @@ fun CartItemCard(
                             }
                             Text("${cartItem.quantity}", fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp))
                             IconButton(onClick = onIncrease, modifier = Modifier.size(32.dp)) {
-                                Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp), tint = Color(0xFF4F46E5))
+                                Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp), tint = Color(0xFF455E91))
                             }
                         }
                     }
@@ -157,14 +181,17 @@ fun CartSummary(total: Double, onCheckoutClick: () -> Unit) {
         Column(modifier = Modifier.padding(24.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Total estimado", color = Color.Gray, fontSize = 16.sp)
-                Text("$${String.format(Locale.US, "%.2f", total)}", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1E1B4B))
+                Text("$${String.format(Locale.US, "%.2f", total)}", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1C2E))
             }
             Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = onCheckoutClick,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4F46E5))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFA0BBF8),
+                    contentColor = Color(0xFF1A1C2E)
+                )
             ) {
                 Text("PROCEDER AL PAGO", fontWeight = FontWeight.Bold, fontSize = 16.sp, letterSpacing = 1.sp)
             }
@@ -183,4 +210,39 @@ fun EmptyCartState() {
         Spacer(modifier = Modifier.height(16.dp))
         Text("Tu carrito está vacío", fontWeight = FontWeight.Bold, color = Color(0xFF94A3B8), fontSize = 18.sp)
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CartScreenPreview() {
+    val mockProducts = listOf(
+        Product(1, "SKU-001", "Arduino Uno R3", "Original", 25.50, 10, null, 1, ""),
+        Product(2, "SKU-002", "Sensor Ultrasonico", "HC-SR04", 4.20, 50, null, 1, "")
+    )
+    val mockCartItems = listOf(
+        CartItem(mockProducts[0], 2),
+        CartItem(mockProducts[1], 5)
+    )
+    
+    CartScreenContent(
+        uiState = CartUiState(cartItems = mockCartItems),
+        onBackClick = {},
+        onCheckoutClick = {},
+        onIncrease = {},
+        onDecrease = {},
+        onRemove = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmptyCartScreenPreview() {
+    CartScreenContent(
+        uiState = CartUiState(cartItems = emptyList()),
+        onBackClick = {},
+        onCheckoutClick = {},
+        onIncrease = {},
+        onDecrease = {},
+        onRemove = {}
+    )
 }

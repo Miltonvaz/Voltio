@@ -3,6 +3,7 @@ package com.miltonvaz.voltio_1.features.orders.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.network.TokenManager
+import com.miltonvaz.voltio_1.features.directions.domain.usecase.DirectionUseCase
 import com.miltonvaz.voltio_1.features.orders.domain.entities.Order
 import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderItem
 import com.miltonvaz.voltio_1.features.orders.domain.entities.OrderStatus
@@ -28,11 +29,36 @@ class CheckoutViewModel @Inject constructor(
     private val getCartItemsUseCase: GetCartItemsUseCase,
     private val clearCartUseCase: ClearCartUseCase,
     private val createOrderUseCase: CreateOrderUseCase,
+    private val directionUseCase: DirectionUseCase,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CheckoutUiState())
     val uiState = _uiState.asStateFlow()
+
+    init {
+        loadDefaultDirection()
+    }
+
+    private fun loadDefaultDirection() {
+        viewModelScope.launch {
+            val userId = tokenManager.getUserId()
+            directionUseCase.getByUserId(userId).onSuccess { directions ->
+                val defaultDir = directions.find { it.es_predeterminada } ?: directions.firstOrNull()
+                defaultDir?.let { dir ->
+                    _uiState.update { 
+                        it.copy(addressInfo = AddressInfo(
+                            street = dir.direccion,
+                            city = "", 
+                            state = "",
+                            zipCode = "",
+                            reference = dir.alias
+                        ))
+                    }
+                }
+            }
+        }
+    }
 
     fun updateCardInfo(
         number: String = _uiState.value.cardInfo.number,
@@ -66,7 +92,11 @@ class CheckoutViewModel @Inject constructor(
             }
 
             val addressInfo = _uiState.value.addressInfo
-            val fullAddress = "${addressInfo.street}, ${addressInfo.city}, ${addressInfo.state} CP: ${addressInfo.zipCode}"
+            val fullAddress = if (addressInfo.city.isBlank()) {
+                addressInfo.street // Usar dirección tal cual si viene de Mis Direcciones
+            } else {
+                "${addressInfo.street}, ${addressInfo.city}, ${addressInfo.state} CP: ${addressInfo.zipCode}"
+            }
             
             val totalAmount = cartItems.sumOf { it.product.price * it.quantity }
             val orderDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
@@ -80,7 +110,7 @@ class CheckoutViewModel @Inject constructor(
                 orderDate = orderDate,
                 status = OrderStatus.PENDING,
                 totalAmount = totalAmount,
-                description = "Pedido urgente",
+                description = "Pedido desde app",
                 address = fullAddress,
                 paymentType = "tarjeta",
                 last4 = last4,

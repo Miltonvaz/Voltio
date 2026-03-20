@@ -37,9 +37,10 @@ fun AdminHeader(
             .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFFE0E7FF), Color(0xFFC7D2FE))
+                    colors = listOf(Color(0xFFCED9ED), Color(0xFFD8E2FF))
                 )
             )
+            .statusBarsPadding()
             .padding(bottom = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -51,7 +52,7 @@ fun AdminHeader(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Atrás",
-                        tint = Color(0xFF1E1B4B)
+                        tint = Color(0xFF1A1C2E)
                     )
                 }
             } else {
@@ -83,7 +84,7 @@ fun AdminHeader(
                                 imageVector = Icons.Default.ShoppingCart,
                                 contentDescription = "Carrito",
                                 modifier = Modifier.padding(8.dp),
-                                tint = Color(0xFF4F46E5)
+                                tint = Color(0xFF455E91)
                             )
                         }
                     }
@@ -98,7 +99,7 @@ fun AdminHeader(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = "Perfil",
                                 modifier = Modifier.padding(8.dp),
-                                tint = Color(0xFF1E293B)
+                                tint = Color(0xFF1A1C2E)
                             )
                         }
                     }
@@ -112,13 +113,13 @@ fun AdminHeader(
                     text = title,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF1E293B)
+                    color = Color(0xFF1A1C2E)
                 )
                 Text(
                     text = subtitle,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF1E293B).copy(alpha = 0.5f)
+                    color = Color(0xFF1A1C2E).copy(alpha = 0.6f)
                 )
             }
         }

@@ -22,13 +22,15 @@ import com.miltonvaz.voltio_1.features.directions.domain.entities.Direction
 fun DirectionCard(
     direction: Direction,
     onEdit: (Direction) -> Unit,
-    onDelete: (Int) -> Unit
+    onDelete: (Int) -> Unit,
+    onClick: (() -> Unit)? = null
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        onClick = { onClick?.invoke() }
     ) {
         Row(
             modifier = Modifier
@@ -39,13 +41,13 @@ fun DirectionCard(
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(Color(0xFFE0E7FF), RoundedCornerShape(12.dp)),
+                    .background(Color(0xFFCED9ED), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
-                    tint = Color(0xFF4F46E5),
+                    tint = Color(0xFF455E91),
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -65,13 +67,13 @@ fun DirectionCard(
                         Spacer(modifier = Modifier.width(8.dp))
                         Box(
                             modifier = Modifier
-                                .background(Color(0xFFE0E7FF), RoundedCornerShape(8.dp))
+                                .background(Color(0xFFD8E2FF), RoundedCornerShape(8.dp))
                                 .padding(horizontal = 8.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 text = "Principal",
                                 fontSize = 10.sp,
-                                color = Color(0xFF4F46E5),
+                                color = Color(0xFF455E91),
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -91,7 +93,7 @@ fun DirectionCard(
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Editar",
-                        tint = Color(0xFF4F46E5),
+                        tint = Color(0xFF455E91),
                         modifier = Modifier.size(20.dp)
                     )
                 }

@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.miltonvaz.voltio_1.core.navigation.*
+import com.miltonvaz.voltio_1.features.directions.presentation.screens.DirectionScreen
 import com.miltonvaz.voltio_1.features.orders.presentation.screens.*
 import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.AdminOrdersViewModel
 import com.miltonvaz.voltio_1.features.orders.presentation.viewmodel.CartViewModel
@@ -24,7 +25,7 @@ class OrdersNavGraph @Inject constructor() : FeatureNavGraph {
             CartScreen(
                 navController = navController,
                 viewModel = cartViewModel,
-                onCheckoutClick = { navController.navigate(Directions) }
+                onCheckoutClick = { navController.navigate(Checkout) }
             )
         }
 
@@ -65,7 +66,18 @@ class OrdersNavGraph @Inject constructor() : FeatureNavGraph {
         navGraphBuilder.composable<Checkout> {
             CheckoutScreen(
                 onBackClick = { navController.popBackStack() },
-                onContinueClick = { navController.navigate(CheckoutAddress) }
+                onContinueClick = { navController.navigate(Directions) }
+            )
+        }
+
+        navGraphBuilder.composable<Directions> {
+            DirectionScreen(
+                onBackClick = { navController.popBackStack() },
+                onFinishOrder = {
+                    navController.navigate(CheckoutResult(isSuccess = true)) {
+                        popUpTo(Cart) { inclusive = true }
+                    }
+                }
             )
         }
 
