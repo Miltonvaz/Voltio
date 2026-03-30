@@ -1,10 +1,6 @@
 package com.miltonvaz.voltio_1.features.auth.domain.repositories
 
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthRequest
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthResponse
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRequest
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.MessageResponse
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.ProfileResponse
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.*
 
 interface IAuthRepository {
     suspend fun login(request: LoginRequest): AuthResponse
@@ -13,4 +9,5 @@ interface IAuthRepository {
     suspend fun refreshToken(): MessageResponse
     suspend fun getProfile(): ProfileResponse
     suspend fun verifyToken(): ProfileResponse
+    suspend fun registerFCMToken(token: String, userId: Int, fcmToken: String): MessageResponse
 }

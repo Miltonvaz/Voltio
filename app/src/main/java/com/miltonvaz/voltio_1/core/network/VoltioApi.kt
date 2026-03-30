@@ -1,12 +1,9 @@
 package com.miltonvaz.voltio_1.core.network
 
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthRequest
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.AuthResponse
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRequest
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.MessageResponse
-import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.ProfileResponse
+import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.*
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface VoltioApi {
@@ -28,4 +25,10 @@ interface VoltioApi {
 
     @GET("auth/verify")
     suspend fun verifyToken(): ProfileResponse
+
+    @POST("auth/fcm-token")
+    suspend fun registerFCMToken(
+        @Header("Authorization") token: String,
+        @Body request: RegisterFCMTokenRequest
+    ): MessageResponse
 }

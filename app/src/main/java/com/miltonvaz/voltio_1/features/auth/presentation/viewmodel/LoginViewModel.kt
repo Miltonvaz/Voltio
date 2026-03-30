@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio_1.core.hardware.domain.AuthManager
 import com.miltonvaz.voltio_1.core.network.TokenManager
+import com.miltonvaz.voltio_1.core.notifications.domain.usecase.SubscribeToTopicUseCase
 import com.miltonvaz.voltio_1.features.auth.data.datasource.remote.model.LoginRequest
 import com.miltonvaz.voltio_1.features.auth.domain.usecase.AuthUseCase
+import com.miltonvaz.voltio_1.features.auth.domain.usecase.RegisterFCMTokenUseCase
 import com.miltonvaz.voltio_1.features.auth.presentation.screens.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authUseCase: AuthUseCase,
+    private val registerFCMTokenUseCase: RegisterFCMTokenUseCase,
+    private val subscribeToTopicUseCase: SubscribeToTopicUseCase,
     private val sessionManager: TokenManager,
     private val authManager: AuthManager
 ) : ViewModel() {
@@ -56,6 +60,10 @@ class LoginViewModel @Inject constructor(
                 onSuccess = { response ->
                     if (response.user.role == "admin") {
                         sessionManager.saveAdminCredentials(email, password)
+                        
+                        // Suscribir al admin al tópico de pedidos
+                        subscribeToTopicUseCase("admin_orders")
+
                         if (activity != null && authManager.canAuthenticate()) {
                             authManager.authenticate(
                                 activity = activity,
@@ -90,6 +98,13 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             sessionManager.saveToken(token)
             sessionManager.saveUserId(user.id)
+            
+            // Registrar token FCM en el servidor para notificaciones personales
+            val fcmToken = sessionManager.getFCMToken()
+            if (fcmToken != null) {
+                registerFCMTokenUseCase(token, user.id, fcmToken)
+            }
+
             _uiState.update {
                 it.copy(
                     isLoading = false,

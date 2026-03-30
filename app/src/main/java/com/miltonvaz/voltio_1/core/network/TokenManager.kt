@@ -42,6 +42,14 @@ class TokenManager @Inject constructor(
         return email to pass
     }
 
+    fun saveFCMToken(token: String) {
+        prefs.edit().putString("fcm_token", token).apply()
+    }
+
+    fun getFCMToken(): String? {
+        return prefs.getString("fcm_token", null)
+    }
+
     fun clearSession() {
         prefs.edit()
             .remove("auth_token")

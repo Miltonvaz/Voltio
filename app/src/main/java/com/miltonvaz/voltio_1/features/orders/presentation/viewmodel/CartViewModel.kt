@@ -67,6 +67,6 @@ class CartViewModel @Inject constructor(
     }
 
     fun clearCart() {
-        // Implement clear if needed via a UseCase
+
     }
 }
