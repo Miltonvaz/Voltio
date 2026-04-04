@@ -1,0 +1,208 @@
+package com.miltonvaz.voltio1.features.auth.presentation.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.miltonvaz.voltio1.core.ui.components.CustomTextField
+import com.miltonvaz.voltio1.core.ui.components.PrimaryButton
+import com.miltonvaz.voltio1.core.ui.components.SocialButton
+import com.miltonvaz.voltio1.core.ui.components.TextDivider
+import com.miltonvaz.voltio1.core.ui.theme.displayFontFamily
+import com.miltonvaz.voltio1.features.auth.domain.entities.Auth
+import com.miltonvaz.voltio1.features.auth.presentation.viewmodel.LoginViewModel
+import com.miltonvaz.voltio1.features.products.presentation.components.AdminHeader
+import com.miltonvaz.voltio1.R
+@Composable
+fun LoginScreen(
+    onBackClick: () -> Unit = {},
+    onRegisterClick: () -> Unit = {},
+    onLoginSuccess: (Auth?) -> Unit = {}
+) {
+    val viewModel: LoginViewModel = hiltViewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    LaunchedEffect(uiState.isAuthenticated) {
+        if (uiState.isAuthenticated) {
+            onLoginSuccess(uiState.user)
+        }
+    }
+
+    Scaffold(
+        containerColor = Color(0xFFF8FAFC)
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Color(0xFFF8FAFC))
+        ) {
+            AdminHeader(
+                title = "Bienvenido",
+                subtitle = "Inicia sesión para continuar",
+                onBackClick = null,
+                showProfile = false
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 24.dp)
+                        .padding(top = 32.dp, bottom = 40.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "¡Hola de nuevo!",
+                                fontFamily = displayFontFamily,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1A1C2E)
+                            )
+
+                            Text(
+                                text = "Voltio - Potencia electrónica",
+                                fontFamily = displayFontFamily,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color(0xFF616161),
+                            )
+                        }
+
+                        if (viewModel.canFastLogin()) {
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFE0E7FF))
+                                    .clickable {
+                                        val activity = context as? FragmentActivity
+                                        if (activity != null) viewModel.fastAdminLogin(activity)
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Fingerprint,
+                                    contentDescription = "Acceso Rápido",
+                                    tint = Color(0xFF455E91),
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    CustomTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = "Correo electrónico",
+                        keyboardType = KeyboardType.Email
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    CustomTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = "Contraseña",
+                        isPassword = true,
+                        keyboardType = KeyboardType.Password
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    PrimaryButton(
+                        text = "INGRESAR",
+                        onClick = { 
+                            val activity = context as? FragmentActivity
+                            viewModel.login(email, password, activity) 
+                        },
+                        enabled = !uiState.isLoading && email.isNotBlank() && password.isNotBlank()
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    TextDivider(text = "O inicia sesión con")
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    SocialButton(
+                        text = "Google",
+                        iconRes = R.drawable.google,
+                        onClick = { viewModel.onGoogleSignIn(context) }
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    TextButton(
+                        onClick = onRegisterClick,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("¿No tienes cuenta? Regístrate", color = Color(0xFF455E91), fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFF455E91))
+            }
+        }
+
+        if (uiState.error != null) {
+            Snackbar(
+                modifier = Modifier.padding(16.dp),
+                containerColor = Color(0xFF1E1B4B),
+                contentColor = Color.White,
+                action = {
+                    TextButton(onClick = { viewModel.clearError() }) {
+                        Text("OK", color = Color.White)
+                    }
+                }
+            ) {
+                Text(uiState.error ?: "Error desconocido")
+            }
+        }
+    }
+}

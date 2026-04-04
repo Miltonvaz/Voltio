@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "com.miltonvaz.voltio_1"
+    namespace = "com.miltonvaz.voltio1"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.miltonvaz.voltio_1"
+        applicationId = "com.miltonvaz.voltio1"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -72,8 +72,10 @@ ksp {
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
     }
 }
+
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -101,13 +103,22 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.socket.io.client)
     implementation(libs.androidx.biometric)
-    
+    implementation("androidx.credentials:credentials:1.2.2")
+    implementation("androidx.credentials:credentials-play-services-auth:1.2.2")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation("com.paypal.android:paypal-native-payments:1.3.0")
+    implementation(libs.play.services.location)
+    implementation(libs.google.maps.compose)
+
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
     ksp(libs.hilt.compiler)
+
+    // Logging
+    implementation(libs.okhttp.logging)
 
 
     testImplementation(libs.junit)
