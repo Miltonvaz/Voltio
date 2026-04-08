@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
@@ -100,7 +99,9 @@ fun ProductCard(
                     Icon(
                         Icons.Default.FavoriteBorder,
                         contentDescription = null,
-                        modifier = Modifier.padding(6.dp).size(16.dp),
+                        modifier = Modifier
+                            .padding(6.dp)
+                            .size(16.dp),
                         tint = Color(0xFFB0B8C9)
                     )
                 }
@@ -119,17 +120,24 @@ fun ProductCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
+                // ⭐ Rating dinámico
+                val rating = product.rating ?: 4.5f
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(5) { index ->
                         Icon(
                             Icons.Default.Star,
                             null,
-                            tint = if (index < 4) Color(0xFFFFC107) else Color(0xFFE2E8F0),
+                            tint = if (index < rating.toInt()) Color(0xFFFFC107) else Color(0xFFE2E8F0),
                             modifier = Modifier.size(12.dp)
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("4.5", fontSize = 10.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
+                    Text(
+                        text = String.format(Locale.US, "%.1f", rating),
+                        fontSize = 10.sp,
+                        color = Color(0xFF94A3B8),
+                        fontWeight = FontWeight.Medium
+                    )
                 }
 
                 // Nombre de empresa
@@ -148,13 +156,13 @@ fun ProductCard(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 if (!product.companyLogoUrl.isNullOrBlank()) {
-                                    coil.compose.AsyncImage(
+                                    AsyncImage(
                                         model = product.companyLogoUrl,
                                         contentDescription = null,
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clip(CircleShape),
-                                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                        contentScale = ContentScale.Crop
                                     )
                                 } else {
                                     Icon(
@@ -185,27 +193,29 @@ fun ProductCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // 💲 Precio en azul
                     Text(
                         text = "$${String.format(Locale.US, "%.2f", product.price)}",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 17.sp,
-                        color = Color(0xFF1E1B4B)
+                        color = Color(0xFF2563EB)
                     )
-                    
+
+                    // 🛒 Botón circular con ícono de carrito
                     Surface(
                         modifier = Modifier
                             .size(36.dp)
                             .clickable { onAddToCart() },
-                        shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFF4F46E5),
+                        shape = CircleShape,
+                        color = Color(0xFF2563EB),
                         shadowElevation = 4.dp
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                Icons.Default.Add,
-                                null,
+                                Icons.Default.ShoppingCart,
+                                contentDescription = "Agregar al carrito",
                                 tint = Color.White,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
