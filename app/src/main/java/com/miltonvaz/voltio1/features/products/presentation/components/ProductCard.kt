@@ -42,13 +42,13 @@ fun ProductCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
-            // Imagen del producto
+
+            // ── Imagen del producto ──────────────────────────────
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
                     .background(Color(0xFFF5F7FA)),
                 contentAlignment = Alignment.Center
             ) {
@@ -68,30 +68,11 @@ fun ProductCard(
                     )
                 }
 
-                // Badge disponibilidad
-                if (product.stock > 0) {
-                    Surface(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(6.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFF10B981)
-                    ) {
-                        Text(
-                            text = "Disponible",
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            color = Color.White,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    }
-                }
-
-                // Favorito
+                // ❤️ Favorito — esquina superior derecha
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(6.dp),
+                        .padding(8.dp),
                     shape = CircleShape,
                     color = Color.White,
                     shadowElevation = 4.dp
@@ -107,20 +88,10 @@ fun ProductCard(
                 }
             }
 
-            // Información del producto
+            // ── Info del producto ────────────────────────────────
             Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                Text(
-                    text = product.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color(0xFF1E293B)
-                )
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // ⭐ Rating dinámico
+                // ⭐ Rating
                 val rating = product.rating ?: 4.5f
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(5) { index ->
@@ -140,7 +111,19 @@ fun ProductCard(
                     )
                 }
 
-                // Nombre de empresa
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // 🏷️ Nombre en azul
+                Text(
+                    text = product.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color(0xFF2563EB)
+                )
+
+                // 🏢 Empresa
                 if (product.companyName != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
@@ -176,7 +159,7 @@ fun ProductCard(
                         }
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = product.companyName!!,
+                            text = product.companyName,
                             fontSize = 10.sp,
                             color = Color(0xFF4F46E5),
                             fontWeight = FontWeight.Medium,
@@ -188,12 +171,12 @@ fun ProductCard(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // 💲 Precio + 🛒 Botón
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 💲 Precio en azul
                     Text(
                         text = "$${String.format(Locale.US, "%.2f", product.price)}",
                         fontWeight = FontWeight.ExtraBold,
@@ -201,7 +184,6 @@ fun ProductCard(
                         color = Color(0xFF2563EB)
                     )
 
-                    // 🛒 Botón circular con ícono de carrito
                     Surface(
                         modifier = Modifier
                             .size(36.dp)
