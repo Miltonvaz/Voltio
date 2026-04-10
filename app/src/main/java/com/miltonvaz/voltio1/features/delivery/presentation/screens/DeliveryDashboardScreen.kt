@@ -1,5 +1,7 @@
 package com.miltonvaz.voltio1.features.delivery.presentation.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -40,6 +42,16 @@ fun DeliveryDashboardScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        viewModel.onLocationPermissionResult(granted)
+    }
+
+    LaunchedEffect(Unit) {
+        locationPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
     val pendingOrders = uiState.assignedOrders.filter { it.status != OrderStatus.COMPLETED }
     val totalEarnings = uiState.assignedOrders.sumOf { it.totalAmount }
     val totalProducts = uiState.assignedOrders.sumOf { order -> order.products.sumOf { it.quantity } }
@@ -73,7 +85,6 @@ fun DeliveryDashboardScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        // Stats row
                         item {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -106,7 +117,6 @@ fun DeliveryDashboardScreen(
                             }
                         }
 
-                        // Refresh button
                         item {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -129,7 +139,6 @@ fun DeliveryDashboardScreen(
                             }
                         }
 
-                        // Error
                         uiState.error?.let { error ->
                             item {
                                 Surface(
@@ -147,7 +156,6 @@ fun DeliveryDashboardScreen(
                             }
                         }
 
-                        // Order cards
                         itemsIndexed(pendingOrders, key = { _, order -> order.id }) { index, order ->
                             DeliveryOrderCard(
                                 order = order,
@@ -280,7 +288,6 @@ private fun DeliveryOrderCard(order: Order, index: Int, onClick: () -> Unit) {
                 HorizontalDivider(color = Color(0xFFF1F5F9))
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Address
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.LocationOn,
@@ -330,10 +337,11 @@ private fun DeliveryOrderCard(order: Order, index: Int, onClick: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // CTA button
                 Button(
                     onClick = onClick,
-                    modifier = Modifier.fillMaxWidth().height(44.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp),
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2563EB),
