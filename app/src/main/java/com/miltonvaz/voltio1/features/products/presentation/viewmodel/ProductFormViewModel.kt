@@ -1,0 +1,147 @@
+package com.miltonvaz.voltio1.features.products.presentation.viewmodel
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.miltonvaz.voltio1.core.hardware.domain.CameraManager
+import com.miltonvaz.voltio1.core.network.TokenManager
+import com.miltonvaz.voltio1.features.company.domain.usecase.GetCompanyByUserIdUseCase
+import com.miltonvaz.voltio1.features.products.data.datasource.remote.model.CreateProductRequest
+import com.miltonvaz.voltio1.features.products.domain.usecase.CreateProductUseCase
+import com.miltonvaz.voltio1.features.products.domain.usecase.GetProductByIdUseCase
+import com.miltonvaz.voltio1.features.products.domain.usecase.UpdateProductUseCase
+import com.miltonvaz.voltio1.features.products.presentation.screens.UiState.ProductFormUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+import android.net.Uri
+
+@HiltViewModel
+class ProductFormViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val createProductUseCase: CreateProductUseCase,
+    private val updateProductUseCase: UpdateProductUseCase,
+    private val getProductByIdUseCase: GetProductByIdUseCase,
+    private val getCompanyByUserIdUseCase: GetCompanyByUserIdUseCase,
+    private val tokenManager: TokenManager,
+    private val cameraManager: CameraManager
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(ProductFormUiState())
+    val uiState = _uiState.asStateFlow()
+
+    val productId: Int = savedStateHandle.get<Int>("id") ?: -1
+
+    var nombre by mutableStateOf("")
+    var precio by mutableStateOf("")
+    var stock by mutableStateOf("")
+    var sku by mutableStateOf("")
+    var descripcion by mutableStateOf("")
+    var categoriaId by mutableStateOf(1)
+
+    var imageName by mutableStateOf("Subir imagen del producto")
+    var selectedImageBytes by mutableStateOf<ByteArray?>(null)
+
+    private var pendingCameraUri: Uri? = null
+
+    init {
+        if (productId != -1) {
+            loadProductForEdit(productId)
+        }
+    }
+
+    fun createCameraUri(): Uri {
+        val uri = cameraManager.createTempImageUri()
+        pendingCameraUri = uri
+        return uri
+    }
+
+    fun onCameraResult(success: Boolean) {
+        if (success) {
+            pendingCameraUri?.let { uri ->
+                selectedImageBytes = cameraManager.readImageBytes(uri)
+                imageName = "¡Foto tomada!"
+            }
+        }
+    }
+
+    fun onGalleryResult(uri: Uri) {
+        selectedImageBytes = cameraManager.readImageBytes(uri)
+        imageName = "¡Imagen cargada!"
+    }
+
+    private fun loadProductForEdit(id: Int) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            val token = tokenManager.getToken() ?: ""
+            val result = getProductByIdUseCase(token, id)
+            result.onSuccess { product ->
+                _uiState.update { it.copy(currentProduct = product, isLoading = false) }
+                nombre = product.name
+                precio = product.price.toString()
+                stock = product.stock.toString()
+                sku = product.sku
+                descripcion = product.description
+            }
+            result.onFailure { error ->
+                _uiState.update { it.copy(isLoading = false, error = error.message) }
+            }
+        }
+    }
+
+    private suspend fun resolveCompanyId(): Int? {
+        val cached = tokenManager.getCompanyId()
+        if (cached != -1) return cached
+
+        val token = tokenManager.getToken() ?: return null
+        val userId = tokenManager.getUserId()
+        if (userId == -1) return null
+
+        return getCompanyByUserIdUseCase(token, userId).getOrNull()?.let { company ->
+            tokenManager.saveCompanyId(company.id)
+            company.id
+        }
+    }
+
+    fun saveProduct(onNavigateBack: () -> Unit) {
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            val token = tokenManager.getToken() ?: ""
+            val companyId = resolveCompanyId()
+            val request = CreateProductRequest(
+                sku = sku,
+                nombre = nombre,
+                descripcion = descripcion,
+                precio_venta = precio.toDoubleOrNull() ?: 0.0,
+                stock_actual = stock.toIntOrNull() ?: 0,
+                imagen_url = _uiState.value.currentProduct?.imageUrl,
+                id_categoria = categoriaId,
+                id_empresa = companyId
+            )
+
+            val result = if (productId == -1) {
+                createProductUseCase(token, request, selectedImageBytes)
+            } else {
+                updateProductUseCase(token, productId, request, selectedImageBytes)
+            }
+
+            result.onSuccess {
+                _uiState.update { it.copy(isLoading = false, isSuccess = true) }
+                onNavigateBack()
+            }
+            result.onFailure { error ->
+                _uiState.update { it.copy(isLoading = false, error = error.message) }
+            }
+        }
+    }
+
+    fun clearState() {
+        _uiState.value = ProductFormUiState()
+    }
+}

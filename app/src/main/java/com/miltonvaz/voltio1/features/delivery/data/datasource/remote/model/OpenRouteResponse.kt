@@ -1,0 +1,15 @@
+package com.miltonvaz.voltio1.features.delivery.data.datasource.remote.model
+
+import com.google.gson.annotations.SerializedName
+
+data class OpenRouteResponse(
+    @SerializedName("features") val features: List<Feature>? = null
+)
+
+data class Feature(
+    @SerializedName("geometry") val geometry: Geometry? = null
+)
+
+data class Geometry(
+    @SerializedName("coordinates") val coordinates: List<List<Double>>? = null
+)

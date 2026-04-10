@@ -5,14 +5,15 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinSerialization)
     alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.google.services)
 }
 
 android {
-    namespace = "com.miltonvaz.voltio_1"
+    namespace = "com.miltonvaz.voltio1"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.miltonvaz.voltio_1"
+        applicationId = "com.miltonvaz.voltio1"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -63,16 +64,18 @@ secrets {
     defaultPropertiesFileName = "local.defaults.properties"
     ignoreList.add("sdk.dir")
 }
-
 ksp {
-    arg("hilt.disableModulesHaveInstallInCheck", "true")
+    arg("room.incremental", "false")
+    arg("room.generateKotlin", "false")
 }
 
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
     }
 }
+
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -83,6 +86,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.analytics)
 
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -94,7 +102,23 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.socket.io.client)
+    implementation(libs.androidx.biometric)
+    implementation("androidx.credentials:credentials:1.2.2")
+    implementation("androidx.credentials:credentials-play-services-auth:1.2.2")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation("com.paypal.android:paypal-native-payments:1.3.0")
+    implementation(libs.play.services.location)
+    implementation(libs.google.maps.compose)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     ksp(libs.hilt.compiler)
+
+    // Logging
+    implementation(libs.okhttp.logging)
 
 
     testImplementation(libs.junit)
