@@ -14,5 +14,5 @@ data class Product(
     val specifications: List<Specification> = emptyList(),
     val companyName: String? = null,
     val companyLogoUrl: String? = null,
-    val rating: Float? = null  // 👈 esto se agrega
+    val rating: Float? = null
 )

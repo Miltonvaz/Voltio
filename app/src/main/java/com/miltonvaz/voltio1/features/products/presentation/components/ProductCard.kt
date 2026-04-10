@@ -42,8 +42,6 @@ fun ProductCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
-
-            // ── Imagen del producto ──────────────────────────────
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -68,44 +66,40 @@ fun ProductCard(
                     )
                 }
 
-                // ❤️ Favorito — esquina superior derecha
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp),
                     shape = CircleShape,
                     color = Color.White,
-                    shadowElevation = 4.dp
+                    shadowElevation = 2.dp
                 ) {
                     Icon(
                         Icons.Default.FavoriteBorder,
                         contentDescription = null,
                         modifier = Modifier
                             .padding(6.dp)
-                            .size(16.dp),
-                        tint = Color(0xFFB0B8C9)
+                            .size(18.dp),
+                        tint = Color(0xFF1E293B)
                     )
                 }
             }
 
-            // ── Info del producto ────────────────────────────────
             Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-
-                // ⭐ Rating
-                val rating = product.rating ?: 4.5f
+                val rating = product.rating ?: 4.8f
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(5) { index ->
                         Icon(
                             Icons.Default.Star,
                             null,
                             tint = if (index < rating.toInt()) Color(0xFFFFC107) else Color(0xFFE2E8F0),
-                            modifier = Modifier.size(12.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = String.format(Locale.US, "%.1f", rating),
-                        fontSize = 10.sp,
+                        fontSize = 11.sp,
                         color = Color(0xFF94A3B8),
                         fontWeight = FontWeight.Medium
                     )
@@ -113,17 +107,15 @@ fun ProductCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // 🏷️ Nombre en azul
                 Text(
                     text = product.name,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = Color(0xFF2563EB)
+                    color = Color(0xFF1E293B)
                 )
 
-                // 🏢 Empresa
                 if (product.companyName != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
@@ -171,7 +163,6 @@ fun ProductCard(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // 💲 Precio + 🛒 Botón
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -180,24 +171,24 @@ fun ProductCard(
                     Text(
                         text = "$${String.format(Locale.US, "%.2f", product.price)}",
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 17.sp,
+                        fontSize = 18.sp,
                         color = Color(0xFF2563EB)
                     )
 
                     Surface(
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(42.dp)
                             .clickable { onAddToCart() },
                         shape = CircleShape,
-                        color = Color(0xFF2563EB),
-                        shadowElevation = 4.dp
+                        color = Color(0xFFD6E4FF),
+                        shadowElevation = 0.dp
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 Icons.Default.ShoppingCart,
                                 contentDescription = "Agregar al carrito",
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
+                                tint = Color(0xFF2563EB),
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
