@@ -13,5 +13,6 @@ data class Product(
     val registerDate: String,
     val specifications: List<Specification> = emptyList(),
     val companyName: String? = null,
-    val companyLogoUrl: String? = null
+    val companyLogoUrl: String? = null,
+    val rating: Float? = null
 )

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
@@ -43,13 +42,11 @@ fun ProductCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
-            // Imagen del producto
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp))
                     .background(Color(0xFFF5F7FA)),
                 contentAlignment = Alignment.Center
             ) {
@@ -69,45 +66,47 @@ fun ProductCard(
                     )
                 }
 
-                // Badge disponibilidad
-                if (product.stock > 0) {
-                    Surface(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(6.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFF10B981)
-                    ) {
-                        Text(
-                            text = "Disponible",
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            color = Color.White,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    }
-                }
-
-                // Favorito
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(6.dp),
+                        .padding(8.dp),
                     shape = CircleShape,
                     color = Color.White,
-                    shadowElevation = 4.dp
+                    shadowElevation = 2.dp
                 ) {
                     Icon(
                         Icons.Default.FavoriteBorder,
                         contentDescription = null,
-                        modifier = Modifier.padding(6.dp).size(16.dp),
-                        tint = Color(0xFFB0B8C9)
+                        modifier = Modifier
+                            .padding(6.dp)
+                            .size(18.dp),
+                        tint = Color(0xFF1E293B)
                     )
                 }
             }
 
-            // Información del producto
             Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                val rating = product.rating ?: 4.8f
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    repeat(5) { index ->
+                        Icon(
+                            Icons.Default.Star,
+                            null,
+                            tint = if (index < rating.toInt()) Color(0xFFFFC107) else Color(0xFFE2E8F0),
+                            modifier = Modifier.size(13.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = String.format(Locale.US, "%.1f", rating),
+                        fontSize = 11.sp,
+                        color = Color(0xFF94A3B8),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = product.name,
                     fontWeight = FontWeight.Bold,
@@ -117,22 +116,6 @@ fun ProductCard(
                     color = Color(0xFF1E293B)
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    repeat(5) { index ->
-                        Icon(
-                            Icons.Default.Star,
-                            null,
-                            tint = if (index < 4) Color(0xFFFFC107) else Color(0xFFE2E8F0),
-                            modifier = Modifier.size(12.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("4.5", fontSize = 10.sp, color = Color(0xFF94A3B8), fontWeight = FontWeight.Medium)
-                }
-
-                // Nombre de empresa
                 if (product.companyName != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
@@ -148,13 +131,13 @@ fun ProductCard(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 if (!product.companyLogoUrl.isNullOrBlank()) {
-                                    coil.compose.AsyncImage(
+                                    AsyncImage(
                                         model = product.companyLogoUrl,
                                         contentDescription = null,
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clip(CircleShape),
-                                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                        contentScale = ContentScale.Crop
                                     )
                                 } else {
                                     Icon(
@@ -168,7 +151,7 @@ fun ProductCard(
                         }
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = product.companyName!!,
+                            text = product.companyName,
                             fontSize = 10.sp,
                             color = Color(0xFF4F46E5),
                             fontWeight = FontWeight.Medium,
@@ -188,23 +171,23 @@ fun ProductCard(
                     Text(
                         text = "$${String.format(Locale.US, "%.2f", product.price)}",
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 17.sp,
-                        color = Color(0xFF1E1B4B)
+                        fontSize = 18.sp,
+                        color = Color(0xFF2563EB)
                     )
-                    
+
                     Surface(
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(42.dp)
                             .clickable { onAddToCart() },
-                        shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFF4F46E5),
-                        shadowElevation = 4.dp
+                        shape = CircleShape,
+                        color = Color(0xFFD6E4FF),
+                        shadowElevation = 0.dp
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                Icons.Default.Add,
-                                null,
-                                tint = Color.White,
+                                Icons.Default.ShoppingCart,
+                                contentDescription = "Agregar al carrito",
+                                tint = Color(0xFF2563EB),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
