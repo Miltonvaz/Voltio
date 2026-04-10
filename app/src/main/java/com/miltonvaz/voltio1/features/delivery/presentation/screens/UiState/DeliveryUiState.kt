@@ -11,5 +11,6 @@ data class DeliveryUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val completingOrder: Boolean = false,
-    val orderCompleted: Boolean = false
+    val orderCompleted: Boolean = false,
+    val locationPermissionGranted: Boolean = false
 )
