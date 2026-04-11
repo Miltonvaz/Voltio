@@ -36,12 +36,13 @@ class DeliveryViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var locationJob: Job? = null
-    
-    // API KEY de OpenRouteService (Gratuita)
     private val ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkwNTVkOWY2ZGQ0OTQ4YTE5OTBiZTNmYTlmZjdjMjQyIiwiaCI6Im11cm11cjY0In0="
 
-    init {
-        loadAssignedOrders()
+    fun onLocationPermissionResult(granted: Boolean) {
+        _uiState.update { it.copy(locationPermissionGranted = granted) }
+        if (granted) {
+            loadAssignedOrders()
+        }
     }
 
     fun loadAssignedOrders() {
@@ -56,12 +57,12 @@ class DeliveryViewModel @Inject constructor(
 
                 val profile = authRepository.getProfile()
                 val repartidorId = profile.user.id
-                
+
                 getAssignedOrdersUseCase(token, repartidorId).fold(
                     onSuccess = { orders ->
                         _uiState.update { it.copy(isLoading = false, assignedOrders = orders, error = null) }
                     },
-                    onFailure = { error ->
+                    onFailure = {
                         _uiState.update { it.copy(isLoading = false, error = "Error al cargar entregas") }
                     }
                 )
@@ -94,8 +95,7 @@ class DeliveryViewModel @Inject constructor(
                         val latLng = LatLng(location.latitude, location.longitude)
                         _uiState.update { it.copy(currentLocation = latLng) }
                         sendLocationUseCase(orderId, location.latitude, location.longitude)
-                        
-                        // Actualizar ruta si tenemos destino
+
                         val order = _uiState.value.assignedOrders.find { it.id == _uiState.value.currentTrackingOrderId }
                         if (order?.latitude != null && order.longitude != null && _uiState.value.routePoints.isEmpty()) {
                             fetchRouteORS(latLng, LatLng(order.latitude!!, order.longitude!!))
@@ -114,12 +114,11 @@ class DeliveryViewModel @Inject constructor(
     private fun fetchRouteORS(origin: LatLng, destination: LatLng) {
         viewModelScope.launch {
             try {
-                // ORS requiere formato "lon,lat"
                 val start = "${origin.longitude},${origin.latitude}"
                 val end = "${destination.longitude},${destination.latitude}"
-                
+
                 val response = openRouteService.getDirections(ORS_API_KEY, start, end)
-                
+
                 val coords = response.features?.get(0)?.geometry?.coordinates
                 if (!coords.isNullOrEmpty()) {
                     val points = coords.map { LatLng(it[1], it[0]) }
@@ -154,7 +153,6 @@ class DeliveryViewModel @Inject constructor(
 
                 orderRepository.completeOrderDelivery(token, orderId, userId).fold(
                     onSuccess = {
-                        Log.d("DELIVERY_VM", "Pedido #$orderId marcado como completada")
                         locationJob?.cancel()
                         leaveOrderTrackingUseCase(orderId)
                         _uiState.update {
