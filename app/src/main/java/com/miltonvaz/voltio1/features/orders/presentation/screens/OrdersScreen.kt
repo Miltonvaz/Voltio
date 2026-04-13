@@ -76,6 +76,26 @@ fun OrdersScreen(
             Box(modifier = Modifier.weight(1f)) {
                 if (uiState.isLoading) {
                     OrdersLoadingState()
+                } else if (uiState.error != null && uiState.orders.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(32.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "Error al cargar pedidos",
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFEF4444),
+                            fontSize = 16.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            uiState.error,
+                            color = Color(0xFF94A3B8),
+                            fontSize = 13.sp,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
                 } else if (uiState.orders.isEmpty()) {
                     EmptyOrdersState()
                 } else {

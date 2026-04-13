@@ -19,7 +19,9 @@ import com.miltonvaz.voltio1.features.auth.domain.usecase.AuthUseCase
 import com.miltonvaz.voltio1.features.auth.domain.usecase.GoogleAuthUseCase
 import com.miltonvaz.voltio1.features.auth.domain.usecase.RegisterFCMTokenUseCase
 import com.miltonvaz.voltio1.features.auth.presentation.screens.LoginUiState
+import com.miltonvaz.voltio1.core.service.VoltioSocketService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -33,7 +35,8 @@ class LoginViewModel @Inject constructor(
     private val registerFCMTokenUseCase: RegisterFCMTokenUseCase,
     private val subscribeToTopicUseCase: SubscribeToTopicUseCase,
     private val sessionManager: TokenManager,
-    private val authManager: AuthManager
+    private val authManager: AuthManager,
+    @ApplicationContext private val appContext: android.content.Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -166,15 +169,20 @@ class LoginViewModel @Inject constructor(
             try {
                 token?.let { sessionManager.saveToken(it) }
                 sessionManager.saveUserId(user.id)
-                
+
                 val fcmToken = sessionManager.getFCMToken()
                 if (fcmToken != null && token != null) {
-                    // Intentamos registrar el token pero no dejamos que un fallo aquí cierre la app
                     try {
                         registerFCMTokenUseCase(token, user.id, fcmToken)
                     } catch (e: Exception) {
                         Log.w("FCM", "No se pudo registrar el token FCM: ${e.message}")
                     }
+                }
+
+                // Arrancar Foreground Service solo para empresa/admin
+                if (user.role == "company" || user.role == "admin") {
+                    Log.d("SOCKET_SERVICE", "Arrancando servicio para rol=${user.role}")
+                    VoltioSocketService.start(appContext)
                 }
 
                 _uiState.update {

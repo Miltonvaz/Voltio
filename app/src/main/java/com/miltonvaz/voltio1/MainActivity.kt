@@ -1,4 +1,5 @@
 package com.miltonvaz.voltio1
+
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
@@ -14,11 +15,16 @@ import com.miltonvaz.voltio1.features.auth.di.navigation.AuthNavGraph
 import com.miltonvaz.voltio1.features.delivery.di.navigation.DeliveryNavGraph
 import com.miltonvaz.voltio1.features.orders.di.navigation.OrdersNavGraph
 import com.miltonvaz.voltio1.features.products.di.navigation.ProductNavGraph
+import com.miltonvaz.voltio1.core.network.TokenManager
+import com.miltonvaz.voltio1.core.service.VoltioSocketService
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
+
+    @Inject
+    lateinit var tokenManager: TokenManager
 
     @Inject
     lateinit var productNavGraph: ProductNavGraph
@@ -47,6 +53,12 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         
         askNotificationPermission()
+
+        // Si ya hay sesión activa de empresa/admin, arrancar el servicio
+        val role = tokenManager.getUserRole()
+        if (role == "company" || role == "admin") {
+            VoltioSocketService.start(this)
+        }
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {

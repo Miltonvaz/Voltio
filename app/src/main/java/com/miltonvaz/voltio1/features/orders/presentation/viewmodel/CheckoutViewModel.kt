@@ -234,10 +234,13 @@ class CheckoutViewModel @Inject constructor(
             
             val last4 = if (paymentType == "paypal") "PAYP" else _uiState.value.cardInfo.number.takeLast(4).ifBlank { "0000" }
             val userId = tokenManager.getUserId()
+            // Obtiene la empresa del primer producto del carrito (todos pertenecen a la misma empresa)
+            val companyId = cartItems.firstOrNull()?.product?.companyId
 
             val order = Order(
                 id = 0,
                 userId = userId,
+                companyId = companyId,
                 orderDate = orderDate,
                 status = OrderStatus.PENDING,
                 totalAmount = totalAmount,
@@ -247,7 +250,7 @@ class CheckoutViewModel @Inject constructor(
                 longitude = addressInfo.longitude,
                 paymentType = paymentType,
                 last4 = last4,
-                products = cartItems.map { 
+                products = cartItems.map {
                     OrderItem(
                         productId = it.product.id,
                         productName = it.product.name,

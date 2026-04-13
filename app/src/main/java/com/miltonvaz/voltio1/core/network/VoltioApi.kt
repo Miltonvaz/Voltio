@@ -70,8 +70,6 @@ interface VoltioApi {
 
     @GET("usuarios/{id}/empresa")
     suspend fun getCompanyByUserId(
-        @Header("Authorization") token: String,
-        @Header("Cookie") cookie: String,
         @Path("id") userId: Int
     ): CompanyDto
 }

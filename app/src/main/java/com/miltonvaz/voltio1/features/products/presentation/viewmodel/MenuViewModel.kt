@@ -10,7 +10,9 @@ import com.miltonvaz.voltio1.features.company.domain.usecase.GetCompanyProductsU
 import com.miltonvaz.voltio1.features.orders.domain.usecase.GetOrdersByCompanyIdUseCase
 import com.miltonvaz.voltio1.features.orders.domain.usecase.ObserveNewOrdersUseCase
 import com.miltonvaz.voltio1.features.products.presentation.screens.UiState.MenuUiState
+import com.miltonvaz.voltio1.core.service.VoltioSocketService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -25,7 +27,8 @@ class MenuViewModel @Inject constructor(
     private val observeNewOrdersUseCase: ObserveNewOrdersUseCase,
     private val unsubscribeFromTopicUseCase: UnsubscribeFromTopicUseCase,
     private val socketManager: ISocketManager,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    @ApplicationContext private val appContext: android.content.Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MenuUiState())
@@ -39,8 +42,8 @@ class MenuViewModel @Inject constructor(
 
     fun logout(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            // Dejar de recibir notificaciones de admin al salir
             unsubscribeFromTopicUseCase("admin_orders")
+            VoltioSocketService.stop(appContext)
             tokenManager.clearSession()
             onSuccess()
         }

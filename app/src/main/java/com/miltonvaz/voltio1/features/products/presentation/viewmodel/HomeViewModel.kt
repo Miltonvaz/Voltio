@@ -1,5 +1,6 @@
 package com.miltonvaz.voltio1.features.products.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -36,16 +37,31 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun resolveCompanyId(): Int? {
         val cached = tokenManager.getCompanyId()
-        if (cached != -1) return cached
-
-        val token = tokenManager.getToken() ?: return null
-        val userId = tokenManager.getUserId()
-        if (userId == -1) return null
-
-        return getCompanyByUserIdUseCase(token, userId).getOrNull()?.let { company ->
-            tokenManager.saveCompanyId(company.id)
-            company.id
+        if (cached != -1) {
+            Log.d("HOME_VM", "resolveCompanyId: usando caché id=$cached")
+            return cached
         }
+
+        // No abortamos si el token es null — el CookieJar maneja la sesión
+        val token = tokenManager.getToken() ?: ""
+        val userId = tokenManager.getUserId()
+        if (userId == -1) {
+            Log.e("HOME_VM", "resolveCompanyId: userId no guardado, no se puede resolver empresa")
+            return null
+        }
+
+        Log.d("HOME_VM", "resolveCompanyId: consultando empresa para userId=$userId")
+        return getCompanyByUserIdUseCase(token, userId).fold(
+            onSuccess = { company ->
+                Log.d("HOME_VM", "resolveCompanyId: empresa encontrada id=${company.id}")
+                tokenManager.saveCompanyId(company.id)
+                company.id
+            },
+            onFailure = { error ->
+                Log.e("HOME_VM", "resolveCompanyId: fallo al obtener empresa - ${error.message}", error)
+                null
+            }
+        )
     }
 
     fun loadProducts() {

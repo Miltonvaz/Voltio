@@ -42,7 +42,6 @@ class RegisterViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState = _uiState.asStateFlow()
 
-    // Logo state for company registration
     var selectedLogoBytes by mutableStateOf<ByteArray?>(null)
         private set
     var logoName by mutableStateOf("Subir logo de la empresa")
@@ -91,7 +90,9 @@ class RegisterViewModel @Inject constructor(
                     val googleIdToken = credential.idToken
                     
                     if (role == "user") {
-                        val authResult = googleAuthUseCase(googleIdToken)
+                        val authResult = googleAuthUseCase.registerProgresive(
+                            GoogleAuthRequest(idToken = googleIdToken, role = "user")
+                        )
                         authResult.fold(
                             onSuccess = { response -> handleSuccess(response, true) },
                             onFailure = { error -> _uiState.update { it.copy(isLoading = false, error = error.message) } }
@@ -194,7 +195,6 @@ class RegisterViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             if (googleIdToken != null) {
-                // CASO GOOGLE: Usamos el endpoint progresivo enviando todo junto
                 googleAuthUseCase.registerProgresive(
                     GoogleAuthRequest(
                         idToken = googleIdToken,
@@ -212,7 +212,6 @@ class RegisterViewModel @Inject constructor(
                     }
                 )
             } else {
-                // CASO MANUAL: Flujo de 2 pasos
                 authUseCase.register(
                     AuthRequest(
                         name = name.trim(),

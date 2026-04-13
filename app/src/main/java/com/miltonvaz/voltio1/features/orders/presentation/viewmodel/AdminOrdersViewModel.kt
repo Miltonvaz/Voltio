@@ -1,5 +1,6 @@
 package com.miltonvaz.voltio1.features.orders.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.miltonvaz.voltio1.core.hardware.domain.VibrationManager
@@ -39,19 +40,32 @@ class AdminOrdersViewModel @Inject constructor(
 
         val cached = tokenManager.getCompanyId()
         if (cached != -1) {
+            Log.d("ORDERS_VM", "resolveCompanyId: usando caché id=$cached")
             companyId = cached
             return cached
         }
 
-        val token = tokenManager.getToken() ?: return null
+        // No abortamos si el token es null — el CookieJar maneja la sesión
+        val token = tokenManager.getToken() ?: ""
         val userId = tokenManager.getUserId()
-        if (userId == -1) return null
-
-        return getCompanyByUserIdUseCase(token, userId).getOrNull()?.let { company ->
-            tokenManager.saveCompanyId(company.id)
-            companyId = company.id
-            company.id
+        if (userId == -1) {
+            Log.e("ORDERS_VM", "resolveCompanyId: userId no guardado, no se puede resolver empresa")
+            return null
         }
+
+        Log.d("ORDERS_VM", "resolveCompanyId: consultando empresa para userId=$userId")
+        return getCompanyByUserIdUseCase(token, userId).fold(
+            onSuccess = { company ->
+                Log.d("ORDERS_VM", "resolveCompanyId: empresa encontrada id=${company.id}")
+                tokenManager.saveCompanyId(company.id)
+                companyId = company.id
+                company.id
+            },
+            onFailure = { error ->
+                Log.e("ORDERS_VM", "resolveCompanyId: fallo al obtener empresa - ${error.message}", error)
+                null
+            }
+        )
     }
 
     fun loadAllOrders() {

@@ -22,8 +22,10 @@ class OrderRepositoryImpl @Inject constructor(
     private val gson: Gson
 ) : IOrderRepository {
 
-    private fun formatAuth(token: String) = "Bearer $token"
-    private fun formatCookie(token: String) = "access_token=$token"
+    // Si el token está vacío, pasa null para que Retrofit omita el header
+    // y el CookieJar maneje la autenticación por sesión
+    private fun formatAuth(token: String): String? = if (token.isNotBlank()) "Bearer $token" else null
+    private fun formatCookie(token: String): String? = if (token.isNotBlank()) "access_token=$token" else null
 
     override suspend fun getAllOrders(token: String): List<Order> {
         return api.getAllOrders(formatAuth(token), formatCookie(token)).map { it.toDomain() }

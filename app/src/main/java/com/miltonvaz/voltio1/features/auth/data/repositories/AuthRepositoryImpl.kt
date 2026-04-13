@@ -100,7 +100,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCompanyByUserId(token: String, userId: Int): Company {
-        val dto = api.getCompanyByUserId("Bearer $token", "access_token=$token", userId)
+        val dto = api.getCompanyByUserId(userId)
         return Company(
             id = dto.id,
             userId = dto.userId,
