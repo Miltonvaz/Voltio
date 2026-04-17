@@ -11,6 +11,8 @@ import com.miltonvaz.voltio1.core.navigation.*
 import com.miltonvaz.voltio1.features.company.presentation.screens.CompanyProfileScreen
 import com.miltonvaz.voltio1.features.orders.presentation.viewmodel.CartViewModel
 import com.miltonvaz.voltio1.features.products.presentation.screens.*
+import com.miltonvaz.voltio1.features.auth.presentation.screens.ProfileScreen
+import com.miltonvaz.voltio1.features.auth.presentation.viewmodel.ProfileViewModel
 import com.miltonvaz.voltio1.features.products.presentation.viewmodel.HomeViewModel
 import com.miltonvaz.voltio1.features.products.presentation.viewmodel.ProductFormViewModel
 import javax.inject.Inject
@@ -118,6 +120,14 @@ class ProductNavGraph @Inject constructor() : FeatureNavGraph {
                 companyId = args.companyId,
                 onNavigateBack = { navController.popBackStack() },
                 onProductClick = { id -> navController.navigate(ProductDetailClientArg(id = id)) }
+            )
+        }
+
+        navGraphBuilder.composable<UserProfile> {
+            val viewModel: ProfileViewModel = hiltViewModel()
+            ProfileScreen(
+                navController = navController,
+                viewModel = viewModel
             )
         }
     }

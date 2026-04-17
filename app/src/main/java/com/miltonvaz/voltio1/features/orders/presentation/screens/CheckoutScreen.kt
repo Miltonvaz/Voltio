@@ -36,8 +36,8 @@ fun CheckoutScreen(
     onPayPalError: (String) -> Unit,
     onNavigateToDirections: () -> Unit = {}
 ) {
-    LaunchedEffect(uiState.orderPlacedSuccessfully) {
-        if (uiState.orderPlacedSuccessfully == true) {
+    LaunchedEffect(uiState.paypalCaptured) {
+        if (uiState.paypalCaptured) {
             onNavigateToDirections()
         }
     }

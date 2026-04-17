@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -153,6 +154,8 @@ fun DeliveryTrackingScreen(
                 isTracking = uiState.currentLocation != null,
                 isCompleting = uiState.completingOrder,
                 error = uiState.error,
+                distanceMeters = uiState.distanceMeters,
+                durationSeconds = uiState.durationSeconds,
                 onFinishClick = { showConfirmDialog = true }
             )
         }
@@ -160,17 +163,28 @@ fun DeliveryTrackingScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             val cameraPositionState = rememberCameraPositionState()
 
-            LaunchedEffect(uiState.currentLocation, uiState.routePoints, destinationLatLng) {
+            // Al tener ruta completa, hacer zoom para mostrar todo el trayecto
+            LaunchedEffect(uiState.routePoints) {
                 try {
-                    val targetLocation = uiState.currentLocation
-                        ?: uiState.routePoints.firstOrNull()
-                        ?: destinationLatLng
-
-                    if (targetLocation != null) {
+                    if (uiState.routePoints.size >= 2) {
+                        val boundsBuilder = com.google.android.gms.maps.model.LatLngBounds.builder()
+                        uiState.routePoints.forEach { boundsBuilder.include(it) }
                         cameraPositionState.animate(
-                            CameraUpdateFactory.newLatLngZoom(targetLocation, 14.5f),
-                            1000
+                            CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 120),
+                            1200
                         )
+                    }
+                } catch (e: Exception) {}
+            }
+
+            // Si no hay ruta aún, centrar en ubicación actual o destino
+            LaunchedEffect(uiState.currentLocation) {
+                try {
+                    if (uiState.routePoints.isEmpty()) {
+                        val target = uiState.currentLocation ?: destinationLatLng
+                        target?.let {
+                            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(it, 14.5f), 1000)
+                        }
                     }
                 } catch (e: Exception) {}
             }
@@ -311,6 +325,8 @@ fun DeliveryInfoContent(
     isTracking: Boolean,
     isCompleting: Boolean,
     error: String?,
+    distanceMeters: Double? = null,
+    durationSeconds: Double? = null,
     onFinishClick: () -> Unit
 ) {
     Column(
@@ -388,6 +404,54 @@ fun DeliveryInfoContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Tarjeta de distancia y tiempo estimado
+        if (distanceMeters != null || durationSeconds != null) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFFEFF6FF)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (distanceMeters != null) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Directions, null, tint = Color(0xFF2563EB), modifier = Modifier.size(22.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = if (distanceMeters >= 1000) "${"%.1f".format(distanceMeters / 1000)} km"
+                                       else "${"%.0f".format(distanceMeters)} m",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color(0xFF1E40AF)
+                            )
+                            Text("Distancia", fontSize = 11.sp, color = Color(0xFF3B82F6))
+                        }
+                    }
+                    if (distanceMeters != null && durationSeconds != null) {
+                        Box(modifier = Modifier.width(1.dp).height(36.dp).background(Color(0xFFBFDBFE)))
+                    }
+                    if (durationSeconds != null) {
+                        val minutes = (durationSeconds / 60).toInt()
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Timer, null, tint = Color(0xFF2563EB), modifier = Modifier.size(22.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = if (minutes >= 60) "${minutes / 60}h ${minutes % 60}min" else "$minutes min",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color(0xFF1E40AF)
+                            )
+                            Text("Tiempo est.", fontSize = 11.sp, color = Color(0xFF3B82F6))
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         // Detalles del pedido
         Surface(

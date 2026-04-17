@@ -20,7 +20,7 @@ class AuthNavGraph @Inject constructor() : FeatureNavGraph {
                 onLoginSuccess = { user ->
                     val destination = when (user?.role) {
                         "admin", "company" -> AdminMenu
-                        "delivery", "repartidor" -> DeliveryDashboard // <--- CORREGIDO: Acepta ambos términos
+                        "delivery", "repartidor" -> DeliveryDashboard
                         else -> UserHome
                     }
                     navController.navigate(destination) {

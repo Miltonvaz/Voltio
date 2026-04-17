@@ -11,4 +11,8 @@ class ObserveLocationUpdatesUseCase @Inject constructor(
     operator fun invoke(): Flow<DeliveryLocation> {
         return repository.observeLocationUpdates()
     }
+
+    suspend fun getLastKnownLocation(): DeliveryLocation? {
+        return repository.getLastKnownLocation()
+    }
 }

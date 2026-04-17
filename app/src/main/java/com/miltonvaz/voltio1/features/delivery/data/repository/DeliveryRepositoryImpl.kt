@@ -9,6 +9,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import kotlinx.coroutines.tasks.await
 import com.miltonvaz.voltio1.core.network.ISocketManager
 import com.miltonvaz.voltio1.features.delivery.data.datasource.remote.api.DeliveryApiService
 import com.miltonvaz.voltio1.features.delivery.data.datasource.remote.model.RepartidorRequest
@@ -28,6 +29,16 @@ class DeliveryRepositoryImpl @Inject constructor(
 ) : IDeliveryRepository {
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    @SuppressLint("MissingPermission")
+    override suspend fun getLastKnownLocation(): DeliveryLocation? {
+        return try {
+            val location = fusedLocationClient.lastLocation.await()
+            location?.let { DeliveryLocation(it.latitude, it.longitude) }
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     @SuppressLint("MissingPermission")
     override fun observeLocationUpdates(): Flow<DeliveryLocation> = callbackFlow {

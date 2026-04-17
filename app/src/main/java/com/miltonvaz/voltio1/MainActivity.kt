@@ -21,7 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : FragmentActivity() {
+class   MainActivity : FragmentActivity() {
 
     @Inject
     lateinit var tokenManager: TokenManager

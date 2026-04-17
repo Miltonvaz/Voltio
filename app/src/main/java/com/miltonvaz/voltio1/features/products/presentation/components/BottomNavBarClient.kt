@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import com.miltonvaz.voltio1.core.navigation.Cart
 import com.miltonvaz.voltio1.core.navigation.UserHome
 import com.miltonvaz.voltio1.core.navigation.UserOrders
+import com.miltonvaz.voltio1.core.navigation.UserProfile
 
 data class BottomNavItem(
     val label: String,
@@ -44,7 +45,7 @@ fun BottomNavBarClient(
         BottomNavItem("Inicio", Icons.Filled.Home, Icons.Outlined.Home, UserHome),
         BottomNavItem("Pedidos", Icons.AutoMirrored.Filled.ListAlt, Icons.AutoMirrored.Outlined.ListAlt, UserOrders),
         BottomNavItem("Carrito", Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart, Cart),
-        BottomNavItem("Perfil", Icons.Filled.Person, Icons.Outlined.Person, UserHome)
+        BottomNavItem("Perfil", Icons.Filled.Person, Icons.Outlined.Person, UserProfile)
     )
 
     Surface(

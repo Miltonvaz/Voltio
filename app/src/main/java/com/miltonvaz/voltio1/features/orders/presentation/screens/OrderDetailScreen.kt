@@ -34,6 +34,7 @@ import java.util.Locale
 fun OrderDetailScreen(
     onBackClick: () -> Unit,
     isAdmin: Boolean = false,
+    onTrackClick: (Int) -> Unit = {},
     viewModel: OrderDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -44,6 +45,7 @@ fun OrderDetailScreen(
         isAdmin = isAdmin,
         availableDrivers = availableDrivers,
         onBackClick = onBackClick,
+        onTrackClick = onTrackClick,
         onStatusChange = { viewModel.updateStatus(it) },
         onAssignDriver = { viewModel.assignOrderToDriver(it) }
     )
@@ -56,6 +58,7 @@ fun OrderDetailContent(
     isAdmin: Boolean,
     availableDrivers: List<RepartidorDto>,
     onBackClick: () -> Unit,
+    onTrackClick: (Int) -> Unit = {},
     onStatusChange: (OrderStatus) -> Unit,
     onAssignDriver: (Int) -> Unit
 ) {
@@ -108,6 +111,32 @@ fun OrderDetailContent(
                             isAdmin = isAdmin,
                             onAssignClick = { showDriverDialog = true }
                         )
+                    }
+
+                    // Botón "Seguir pedido" — solo para clientes cuando el pedido está en camino
+                    if (!isAdmin && order.status == OrderStatus.IN_PROGRESS) {
+                        item {
+                            Button(
+                                onClick = { onTrackClick(order.id) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF455E91)
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Default.LocalShipping,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Seguir pedido en vivo",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp
+                                )
+                            }
+                        }
                     }
 
                     item {

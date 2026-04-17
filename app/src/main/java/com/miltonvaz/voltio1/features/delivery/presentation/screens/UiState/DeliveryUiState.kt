@@ -8,6 +8,8 @@ data class DeliveryUiState(
     val currentTrackingOrderId: Int? = null,
     val currentLocation: LatLng? = null,
     val routePoints: List<LatLng> = emptyList(),
+    val distanceMeters: Double? = null,
+    val durationSeconds: Double? = null,
     val isLoading: Boolean = false,
     val error: String? = null,
     val completingOrder: Boolean = false,

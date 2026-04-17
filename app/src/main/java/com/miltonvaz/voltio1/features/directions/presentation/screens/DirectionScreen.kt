@@ -35,6 +35,7 @@ import com.miltonvaz.voltio1.features.products.presentation.components.AdminHead
 fun DirectionScreen(
     onBackClick: () -> Unit,
     onFinishOrder: (() -> Unit)? = null,
+    paymentType: String = "tarjeta",
     viewModel: DirectionViewModel = hiltViewModel(),
     checkoutViewModel: CheckoutViewModel = hiltViewModel()
 ) {
@@ -73,7 +74,7 @@ fun DirectionScreen(
                 longitude = direction.longitude
             )
         },
-        onPlaceOrder = { checkoutViewModel.placeOrder() },
+        onPlaceOrder = { checkoutViewModel.placeOrder(paymentType) },
         onAddClick = {
             directionToEdit = null
             showSheet = true

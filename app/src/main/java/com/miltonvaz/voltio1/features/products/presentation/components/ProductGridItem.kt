@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.miltonvaz.voltio1.features.products.domain.entities.Product
 import com.miltonvaz.voltio1.R
 fun getProductImage(name: String): Int {
@@ -59,14 +60,28 @@ fun ProductGridItem(
                     shape = RoundedCornerShape(8.dp),
                     color = Color(0xFFF1F5F9)
                 ) {
-                    Image(
-                        painter = painterResource(id = getProductImage(product.name)),
-                        contentDescription = product.name,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp)
-                    )
+                    if (!product.imageUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = product.imageUrl,
+                            contentDescription = product.name,
+                            contentScale = ContentScale.Fit,
+                            placeholder = painterResource(id = getProductImage(product.name)),
+                            error = painterResource(id = getProductImage(product.name)),
+                            fallback = painterResource(id = getProductImage(product.name)),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = getProductImage(product.name)),
+                            contentDescription = product.name,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
+                        )
+                    }
                 }
                 IconButton(
                     onClick = onFavoriteClick,

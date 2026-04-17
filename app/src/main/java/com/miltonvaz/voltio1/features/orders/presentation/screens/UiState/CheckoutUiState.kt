@@ -7,7 +7,9 @@ data class CheckoutUiState(
     val error: String? = null,
     val orderPlacedSuccessfully: Boolean? = null,
     val paypalOrderId: String? = null,
-    val paypalReady: Boolean = false
+    val paypalReady: Boolean = false,
+    // PayPal capturado exitosamente — navegar a elegir dirección
+    val paypalCaptured: Boolean = false
 )
 
 data class CardInfo(

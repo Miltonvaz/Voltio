@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.miltonvaz.voltio1.core.navigation.*
 import com.miltonvaz.voltio1.features.delivery.presentation.screens.DeliveryDashboardScreen
 import com.miltonvaz.voltio1.features.delivery.presentation.screens.DeliveryTrackingScreen
+import com.miltonvaz.voltio1.features.delivery.presentation.screens.UserTrackingScreen
 import javax.inject.Inject
 
 class DeliveryNavGraph @Inject constructor() : FeatureNavGraph {
@@ -26,6 +27,14 @@ class DeliveryNavGraph @Inject constructor() : FeatureNavGraph {
         navGraphBuilder.composable<DeliveryTracking> { backStackEntry ->
             val args = backStackEntry.toRoute<DeliveryTracking>()
             DeliveryTrackingScreen(
+                orderId = args.orderId,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        navGraphBuilder.composable<UserTracking> { backStackEntry ->
+            val args = backStackEntry.toRoute<UserTracking>()
+            UserTrackingScreen(
                 orderId = args.orderId,
                 onBackClick = { navController.popBackStack() }
             )

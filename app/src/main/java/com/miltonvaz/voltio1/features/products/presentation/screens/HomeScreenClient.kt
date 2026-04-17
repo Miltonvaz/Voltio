@@ -99,7 +99,7 @@ fun HomeScreenClient(
             // Banner promocional
             item {
                 Spacer(modifier = Modifier.height(20.dp))
-                Box(modifier = Modifier.padding(horizontal = 20.dp)) {
+                Box(modifier = Modifier.padding(horizontal = 8.dp)) {
                     BannerCard()
                 }
             }

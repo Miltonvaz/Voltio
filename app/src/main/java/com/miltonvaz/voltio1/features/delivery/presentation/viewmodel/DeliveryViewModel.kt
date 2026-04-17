@@ -36,7 +36,9 @@ class DeliveryViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var locationJob: Job? = null
+    private var locationUpdateCount = 0
     private val ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjkwNTVkOWY2ZGQ0OTQ4YTE5OTBiZTNmYTlmZjdjMjQyIiwiaCI6Im11cm11cjY0In0="
+    private val ROUTE_REFRESH_INTERVAL = 10  // actualizar ruta cada 10 GPS updates (~50s)
 
     fun onLocationPermissionResult(granted: Boolean) {
         _uiState.update { it.copy(locationPermissionGranted = granted) }
@@ -77,6 +79,20 @@ class DeliveryViewModel @Inject constructor(
             try {
                 _uiState.update { it.copy(isLoading = true, currentTrackingOrderId = orderId) }
                 joinOrderTrackingUseCase(orderId)
+
+                // Obtener ubicación inmediatamente para mostrar la ruta sin esperar el primer GPS update
+                val lastLocation = observeLocationUpdatesUseCase.getLastKnownLocation()
+                if (lastLocation != null) {
+                    val origin = com.google.android.gms.maps.model.LatLng(lastLocation.latitude, lastLocation.longitude)
+                    _uiState.update { it.copy(currentLocation = origin) }
+
+                    val order = _uiState.value.assignedOrders.find { it.id == orderId }
+                    if (order?.latitude != null && order.longitude != null) {
+                        fetchRouteORS(origin, com.google.android.gms.maps.model.LatLng(order.latitude, order.longitude))
+                    }
+                }
+
+                locationUpdateCount = 0
                 startLocationReporting(orderId)
                 _uiState.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
@@ -97,8 +113,12 @@ class DeliveryViewModel @Inject constructor(
                         sendLocationUseCase(orderId, location.latitude, location.longitude)
 
                         val order = _uiState.value.assignedOrders.find { it.id == _uiState.value.currentTrackingOrderId }
-                        if (order?.latitude != null && order.longitude != null && _uiState.value.routePoints.isEmpty()) {
-                            fetchRouteORS(latLng, LatLng(order.latitude!!, order.longitude!!))
+                        if (order?.latitude != null && order.longitude != null) {
+                            locationUpdateCount++
+                            // Actualizar ruta en el primer update y luego cada ROUTE_REFRESH_INTERVAL updates
+                            if (locationUpdateCount == 1 || locationUpdateCount % ROUTE_REFRESH_INTERVAL == 0) {
+                                fetchRouteORS(latLng, LatLng(order.latitude, order.longitude))
+                            }
                         }
                     }
                     .catch { e ->
@@ -118,11 +138,15 @@ class DeliveryViewModel @Inject constructor(
                 val end = "${destination.longitude},${destination.latitude}"
 
                 val response = openRouteService.getDirections(ORS_API_KEY, start, end)
+                val feature = response.features?.firstOrNull()
 
-                val coords = response.features?.get(0)?.geometry?.coordinates
+                val coords = feature?.geometry?.coordinates
                 if (!coords.isNullOrEmpty()) {
                     val points = coords.map { LatLng(it[1], it[0]) }
-                    _uiState.update { it.copy(routePoints = points) }
+                    val distance = feature.properties?.summary?.distance
+                    val duration = feature.properties?.summary?.duration
+                    Log.d("ORS_API", "Ruta: ${points.size} puntos | ${distance?.div(1000)?.let { "%.1f km".format(it) }} | ${duration?.div(60)?.let { "%.0f min".format(it) }}")
+                    _uiState.update { it.copy(routePoints = points, distanceMeters = distance, durationSeconds = duration) }
                 }
             } catch (e: Exception) {
                 Log.e("ORS_API", "Error fetching route: ${e.message}")

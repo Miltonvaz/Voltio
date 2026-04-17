@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.miltonvaz.voltio1.core.navigation.*
+import com.miltonvaz.voltio1.core.navigation.UserTracking
 import com.miltonvaz.voltio1.features.directions.presentation.screens.DirectionScreen
 import com.miltonvaz.voltio1.features.orders.presentation.screens.*
 import com.miltonvaz.voltio1.features.orders.presentation.viewmodel.AdminOrdersViewModel
@@ -60,7 +61,8 @@ class OrdersNavGraph @Inject constructor() : FeatureNavGraph {
             val args = backStackEntry.toRoute<OrderDetailArg>()
             OrderDetailScreen(
                 onBackClick = { navController.popBackStack() },
-                isAdmin = args.isAdmin
+                isAdmin = args.isAdmin,
+                onTrackClick = { orderId -> navController.navigate(UserTracking(orderId)) }
             )
         }
 
@@ -78,12 +80,15 @@ class OrdersNavGraph @Inject constructor() : FeatureNavGraph {
                 onCreatePayPalOrder = { amount -> checkoutViewModel.createPayPalOrder(amount) },
                 onPayPalApproved = { orderId -> checkoutViewModel.onPayPalSuccess(orderId) },
                 onPayPalError = { error -> checkoutViewModel.onPayPalError(error) },
-                onNavigateToDirections = { navController.navigate(Directions) }
+                // PayPal capturado — ir a elegir dirección antes de crear la orden
+                onNavigateToDirections = { navController.navigate(Directions(paymentType = "paypal")) }
             )
         }
 
-        navGraphBuilder.composable<Directions> {
+        navGraphBuilder.composable<Directions> { backStackEntry ->
+            val args = backStackEntry.toRoute<Directions>()
             DirectionScreen(
+                paymentType = args.paymentType,
                 onBackClick = { navController.popBackStack() },
                 onFinishOrder = {
                     navController.navigate(CheckoutResult(isSuccess = true)) {

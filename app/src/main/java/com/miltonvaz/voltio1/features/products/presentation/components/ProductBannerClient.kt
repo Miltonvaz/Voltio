@@ -17,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.miltonvaz.voltio1.features.products.domain.entities.Product
 import com.miltonvaz.voltio1.R
 @Composable
@@ -69,12 +70,24 @@ fun ProductBannerClient(product: Product) {
                         modifier = Modifier.size(22.dp)
                     )
                 }
-                Image(
-                    painter = painterResource(id = getProductImage(product.name)),
-                    contentDescription = product.name,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(140.dp)
-                )
+                if (!product.imageUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = product.imageUrl,
+                        contentDescription = product.name,
+                        contentScale = ContentScale.Fit,
+                        placeholder = painterResource(id = getProductImage(product.name)),
+                        error = painterResource(id = getProductImage(product.name)),
+                        fallback = painterResource(id = getProductImage(product.name)),
+                        modifier = Modifier.size(140.dp)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = getProductImage(product.name)),
+                        contentDescription = product.name,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(140.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(14.dp))

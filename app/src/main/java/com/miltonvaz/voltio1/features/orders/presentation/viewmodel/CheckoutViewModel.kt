@@ -183,8 +183,8 @@ class CheckoutViewModel @Inject constructor(
             captureResult.fold(
                 onSuccess = { response ->
                     Log.d("PAYPAL", "Pago capturado exitosamente: ${response.status}")
-                    // Paso 7: Crear la orden en nuestro sistema
-                    placeOrder(paymentType = "paypal")
+                    // Pago listo — navegar a elegir dirección antes de crear la orden
+                    _uiState.update { it.copy(isLoading = false, paypalCaptured = true) }
                 },
                 onFailure = { error ->
                     Log.e("PAYPAL", "Error al capturar pago: ${error.message}")

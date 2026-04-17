@@ -57,7 +57,13 @@ data class ProductFormArg(val id: Int = -1)
 data class CompanyProfileArg(val companyId: Int)
 
 @Serializable
-object Directions
+data class Directions(val paymentType: String = "tarjeta")
+
+@Serializable
+object UserProfile
+
+@Serializable
+data class UserTracking(val orderId: Int)
 
 // Delivery Screens
 @Serializable
