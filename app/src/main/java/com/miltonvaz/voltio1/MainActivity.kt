@@ -12,6 +12,7 @@ import com.example.compose.AppTheme
 import com.google.firebase.messaging.FirebaseMessaging
 import com.miltonvaz.voltio1.core.navigation.NavigationWrapper
 import com.miltonvaz.voltio1.features.auth.di.navigation.AuthNavGraph
+import com.miltonvaz.voltio1.features.chat.di.navigation.ChatNavGraph
 import com.miltonvaz.voltio1.features.delivery.di.navigation.DeliveryNavGraph
 import com.miltonvaz.voltio1.features.orders.di.navigation.OrdersNavGraph
 import com.miltonvaz.voltio1.features.products.di.navigation.ProductNavGraph
@@ -37,6 +38,9 @@ class   MainActivity : FragmentActivity() {
 
     @Inject
     lateinit var deliveryNavGraph: DeliveryNavGraph
+
+    @Inject
+    lateinit var chatNavGraph: ChatNavGraph
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -72,7 +76,7 @@ class   MainActivity : FragmentActivity() {
         setContent {
             AppTheme {
                 NavigationWrapper(
-                    navGraphs = listOf(authNavGraph, productNavGraph, ordersNavGraph, deliveryNavGraph)
+                    navGraphs = listOf(authNavGraph, productNavGraph, ordersNavGraph, deliveryNavGraph, chatNavGraph)
                 )
             }
         }

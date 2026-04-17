@@ -71,3 +71,8 @@ object DeliveryDashboard
 
 @Serializable
 data class DeliveryTracking(val orderId: Int)
+
+@Serializable
+object ChatConversaciones
+@Serializable
+data class ChatDetalle(val idConversacion: Int, val nombreUsuario: String)

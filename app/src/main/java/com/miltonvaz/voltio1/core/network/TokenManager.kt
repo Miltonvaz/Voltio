@@ -25,6 +25,12 @@ class TokenManager @Inject constructor(
 
     fun getUserId(): Int = prefs.getInt("user_id", -1)
 
+    fun saveUserName(name: String) {
+        prefs.edit().putString("user_name", name).apply()
+    }
+
+    fun getUserName(): String? = prefs.getString("user_name", null)
+
     fun saveUserRole(role: String) {
         prefs.edit().putString("user_role", role).apply()
     }
