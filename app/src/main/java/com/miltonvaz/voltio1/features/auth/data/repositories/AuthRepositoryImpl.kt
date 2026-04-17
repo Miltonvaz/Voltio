@@ -1,5 +1,6 @@
 package com.miltonvaz.voltio1.features.auth.data.repositories
 
+import com.miltonvaz.voltio1.core.network.TokenManager
 import com.miltonvaz.voltio1.features.auth.data.datasource.remote.model.*
 import com.miltonvaz.voltio1.core.network.VoltioApi
 import com.miltonvaz.voltio1.features.auth.domain.entities.Company
@@ -12,11 +13,13 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
-    private val api: VoltioApi
+    private val api: VoltioApi,
+    private val tokenManager: TokenManager
 ) : IAuthRepository {
 
     override suspend fun login(loginRequest: LoginRequest): AuthResponse {
-        return api.login(loginRequest)
+        val response = api.login(loginRequest)
+        return response
     }
 
     override suspend fun register(authRequest: AuthRequest): AuthResponse {
@@ -71,11 +74,15 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getProfile(): ProfileResponse {
-        return api.getProfile()
+        val response = api.getProfile()
+        tokenManager.saveUserName(response.user.name)
+        return response
     }
 
     override suspend fun verifyToken(): ProfileResponse {
-        return api.verifyToken()
+        val response = api.verifyToken()
+        tokenManager.saveUserName(response.user.name)
+        return response
     }
 
     override suspend fun registerFCMToken(token: String, userId: Int, fcmToken: String): MessageResponse {
